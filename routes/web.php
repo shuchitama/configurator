@@ -16,3 +16,11 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::post('/upload', function () {
+    return "posted to upload";
+});
+
+Route::get('/showmodel', function () {
+    return view('model');
+});

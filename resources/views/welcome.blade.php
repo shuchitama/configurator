@@ -81,6 +81,9 @@
             <input type="file" name="image" />
             <input class="btn btn-primary" type="submit" value="Upload" />
           </form>
+          <form action="/showmodel" method="get">
+            <input class="btn btn-info" type="submit" value="showmodel" />
+          </form>
         </div>
       </div>
     </div>
