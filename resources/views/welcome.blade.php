@@ -76,13 +76,10 @@
       <div class="card">
         <h5 class="card-header">ADD MODEL FILE TO GET STARTED</h5>
         <div class="card-body">
-          <form action="/upload" method="post" enctype="multipart/form-data">
+          <form action="/model" method="post" enctype="multipart/form-data">
             @csrf
             <input type="file" name="model" />
             <input class="btn btn-primary" type="submit" value="Upload" />
-          </form>
-          <form action="/showmodel" method="get">
-            <input class="btn btn-info" type="submit" value="showmodel" />
           </form>
         </div>
       </div>

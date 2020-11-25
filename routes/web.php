@@ -17,8 +17,4 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::post('/upload', 'ModelController@uploadModel');
-
-Route::get('/showmodel', function () {
-    return view('model');
-});
+Route::post('/model', 'ModelController@uploadModel');

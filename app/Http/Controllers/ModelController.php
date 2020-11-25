@@ -18,7 +18,7 @@ class ModelController extends Controller
             //     Storage::delete('/public/models/'.auth()->user()->avatar);
             // };
             $request->file('model')->storeAs('models', $filename, 'public');
-            return "upload successful";
+            return view('model', ['name' => $filename]);
         } return "not uploaded :(";
     }
 }

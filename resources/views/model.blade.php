@@ -27,7 +27,7 @@
 
 <body>
   <div class="imgbox">
-    <model-viewer class="center-fit" src="storage/models/RobotExpressive.glb" auto-rotate camera-controls>
+    <model-viewer class="center-fit" src="storage/models/<?= $name ?>" auto-rotate camera-controls>
     </model-viewer>
   </div>
 </body>
