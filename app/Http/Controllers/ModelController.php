@@ -10,15 +10,21 @@ class ModelController extends Controller
     public function uploadModel(Request $request)
     {
         if($request->hasFile('model')) {
-            // $path = $request->file('model')->store('models');
-
-            // return $path;
             $filename = $request->file('model')->getClientOriginalName();
             // if(auth()->user()->avatar) {
             //     Storage::delete('/public/models/'.auth()->user()->avatar);
             // };
             $request->file('model')->storeAs('models', $filename, 'public');
             return view('model', ['name' => $filename]);
+        } return "not uploaded :(";
+    }
+
+    public function uploadThree(Request $request)
+    {
+        if($request->hasFile('model')) {
+            $filename = $request->file('model')->getClientOriginalName();
+            $request->file('model')->storeAs('models', $filename, 'public');
+            return view('three', ['name' => $filename]);
         } return "not uploaded :(";
     }
 }

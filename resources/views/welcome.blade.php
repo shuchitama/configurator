@@ -79,7 +79,8 @@
           <form action="/model" method="post" enctype="multipart/form-data">
             @csrf
             <input type="file" name="model" />
-            <input class="btn btn-primary" type="submit" value="Upload" />
+            <input class="btn btn-primary" type="submit" value="Upload with Model Viewer" />
+            <input class="btn btn-primary" type="submit" value="Upload with threejs" formaction="/threejs" />
           </form>
         </div>
       </div>

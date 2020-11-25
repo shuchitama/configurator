@@ -18,3 +18,5 @@ Route::get('/', function () {
 });
 
 Route::post('/model', 'ModelController@uploadModel');
+
+Route::post('/threejs', 'ModelController@uploadThree');
