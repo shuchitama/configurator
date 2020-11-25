@@ -78,7 +78,7 @@
         <div class="card-body">
           <form action="/upload" method="post" enctype="multipart/form-data">
             @csrf
-            <input type="file" name="image" />
+            <input type="file" name="model" />
             <input class="btn btn-primary" type="submit" value="Upload" />
           </form>
           <form action="/showmodel" method="get">
