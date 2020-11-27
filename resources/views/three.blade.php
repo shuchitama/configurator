@@ -68,8 +68,24 @@
     });
 
 
-  const dirLight = new THREE.DirectionalLight(0xffffff, 1);
-  dirLight.position.set(5, 2, 8);
+  let dirLight = new THREE.DirectionalLight(0xffffff, 1);
+  dirLight.position.set(0, 1, 0);
+  scene.add(dirLight);
+
+  dirLight = new THREE.DirectionalLight(0xffffff, 1);
+  dirLight.position.set(1, 0, 0);
+  scene.add(dirLight);
+
+  dirLight = new THREE.DirectionalLight(0xffffff, 1);
+  dirLight.position.set(0, 0, 1);
+  scene.add(dirLight);
+
+  dirLight = new THREE.DirectionalLight(0xffffff, 1);
+  dirLight.position.set(0, 0, -1);
+  scene.add(dirLight);
+
+  dirLight = new THREE.DirectionalLight(0xffffff, 1);
+  dirLight.position.set(-1, -1, 0);
   scene.add(dirLight);
 
   const render = function() {
