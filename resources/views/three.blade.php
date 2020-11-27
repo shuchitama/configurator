@@ -4,12 +4,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
   <title>Three</title>
 </head>
 
 <body>
-
-  Three model here - <?= $name ?>
+  <div class="w-full grid">
+    <a href="/" class="py-1 px-1 text-center bg-blue-400 border cursor-pointer rounded text-white">Back</a>
+  </div>
   <script type="module">
   import * as THREE from "https://unpkg.com/three@0.123.0/build/three.module.js"
   import {
