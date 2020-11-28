@@ -10,7 +10,7 @@
 
 <body>
   <div class="w-full grid">
-    <a href="/" class="py-1 px-1 text-center bg-blue-400 border cursor-pointer rounded text-white">Back</a>
+    <a href="/" class="m-3 py-1 px-1 text-center bg-blue-400 border cursor-pointer rounded text-white">Back</a>
   </div>
   <script type="module">
   import * as THREE from "https://unpkg.com/three@0.123.0/build/three.module.js"
