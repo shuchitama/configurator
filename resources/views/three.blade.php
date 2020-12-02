@@ -22,13 +22,8 @@
   } from 'https://unpkg.com/three@0.123.0/examples/jsm/controls/OrbitControls.js';
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-  camera.position.z = 10;
-  // camera.position.y = 10;
-  // camera.position.y = 10;
-  // const helper = new THREE.CameraHelper(camera);
 
-  // scene.add(helper);
-  camera.lookAt(new THREE.Vector3(0, 0, 0));
+  // camera.lookAt(new THREE.Vector3(0, 0, 0));
 
   const axesHelper = new THREE.AxesHelper(50);
   scene.add(axesHelper);
@@ -66,28 +61,21 @@
   loader.load('storage/models/<?= $name ?>', function(gltf) {
       model = gltf.scene;
 
-      // model.scale.set(1, 1, 1);
-      // model.position.x = 0;
-      // model.position.y = 0;
-
       // Get a bounding box for the model
       box = new THREE.Box3().setFromObject(model);
       center = box.getCenter(new THREE.Vector3());
       boxSize = box.getSize(new THREE.Vector3());
-      // console.log("BOX MIN:", box.min);
-      // console.log("BOX MAX:", box.max);
-      // console.log("BOX SIZE:", boxSize);
-      // console.log("BOX CENTER:", center);
 
       // position model at origin
       model.position.x += (model.position.x - center.x);
       model.position.y += (model.position.y - center.y);
       model.position.z += (model.position.z - center.z);
 
-      camera.position.z = (boxSize.z);
-
-      // send info to global scope
-      // setCamera(boxSize)
+      const maxDim = Math.max(boxSize.x, boxSize.z);
+      console.log(boxSize.x, boxSize.y, boxSize.z);
+      // console.log("boxSize - z:", boxSize.z);
+      console.log("maxDim", maxDim);
+      camera.position.z = (maxDim);
 
       scene.add(model);
     },
@@ -96,12 +84,6 @@
       console.error(e);
     });
 
-  const setCamera = function(size) {
-    console.log("boxSize - z:", size.z);
-    // camera.position.z = (size.z) * 3;
-  }
-
-  // camera.position.z = 10;
 
   let dirLight = new THREE.DirectionalLight(0xffffff, 1);
   dirLight.position.set(0, 1, 0);
