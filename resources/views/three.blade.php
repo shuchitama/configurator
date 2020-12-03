@@ -18,6 +18,9 @@
     GLTFLoader
   } from "https://unpkg.com/three@0.123.0/examples/jsm/loaders/GLTFLoader.js"
   import {
+    RGBELoader
+  } from "https://unpkg.com/three@0.123.0/examples/jsm/loaders/RGBELoader.js"
+  import {
     OrbitControls
   } from 'https://unpkg.com/three@0.123.0/examples/jsm/controls/OrbitControls.js';
   const scene = new THREE.Scene();
@@ -64,44 +67,64 @@
   let model = new THREE.Object3D();
   let box, center, boxSize;
 
+  new RGBELoader()
+    .setDataType(THREE.UnsignedByteType)
+    .setPath('storage/hdr/')
+    .load('royal_esplanade_1k.hdr', function(hdrEquirect) {
 
-  const loader = new GLTFLoader();
-  // Load a glTF resource
-  loader.load('storage/models/<?= $name ?>', function(gltf) {
-      model = gltf.scene;
+      const hdrCubeRenderTarget = pmremGenerator.fromEquirectangular(hdrEquirect);
+      hdrEquirect.dispose();
+      pmremGenerator.dispose();
 
-      // Get a bounding box for the model
-      box = new THREE.Box3().setFromObject(model);
-      center = box.getCenter(new THREE.Vector3());
-      boxSize = box.getSize(new THREE.Vector3());
-
-      // position model at origin
-      model.position.x += (model.position.x - center.x);
-      model.position.y += (model.position.y - center.y);
-      model.position.z += (model.position.z - center.z);
-
-      const maxDim = Math.max(boxSize.x, boxSize.y);
-      console.log("BOX SIZE: x:", boxSize.x, "y:", boxSize.y, "z:", boxSize.z);
-
-      //convert fov to radians
-      const fovRad = camera.fov * (Math.PI / 180);
-      //calculate camera distance from center of object based on maxDim
-      const cameraZ = (maxDim / 2) / (Math.tan(fovRad / 2));
-      console.log("Camera Z", cameraZ);
-      console.log("boxSize.z / 2", boxSize.z / 2);
-
-      camera.position.z = cameraZ;
-      // camera.position.z = cameraZ + boxSize.z / 2; <- to add some extra distance to camera 
-
-      scene.add(model);
-      console.log("camera position: ", `(X: ${camera.position.x}, Y: ${camera.position.y}, Z: ${camera.position.z})`)
-      console.log("Helper camera position: ",
-        `(X: ${helperCamera.position.x}, Y: ${helperCamera.position.y}, Z: ${helperCamera.position.z})`)
-    },
-    undefined,
-    function(e) {
-      console.error(e);
+      scene.background = hdrCubeRenderTarget.texture;
+      scene.environment = hdrCubeRenderTarget.texture;
+      loadGLTF();
     });
+
+  const pmremGenerator = new THREE.PMREMGenerator(renderer);
+  pmremGenerator.compileEquirectangularShader();
+
+  const loadGLTF = function() {
+    const loader = new GLTFLoader();
+    // Load a glTF resource
+    loader.load('storage/models/<?= $name ?>', function(gltf) {
+        model = gltf.scene;
+
+        // Get a bounding box for the model
+        box = new THREE.Box3().setFromObject(model);
+        center = box.getCenter(new THREE.Vector3());
+        boxSize = box.getSize(new THREE.Vector3());
+
+        // position model at origin
+        model.position.x += (model.position.x - center.x);
+        model.position.y += (model.position.y - center.y);
+        model.position.z += (model.position.z - center.z);
+
+        const maxDim = Math.max(boxSize.x, boxSize.y);
+        // console.log("BOX SIZE: x:", boxSize.x, "y:", boxSize.y, "z:", boxSize.z);
+
+        //convert fov to radians
+        const fovRad = camera.fov * (Math.PI / 180);
+        //calculate camera distance from center of object based on maxDim
+        const cameraZ = (maxDim / 2) / (Math.tan(fovRad / 2));
+        // console.log("Camera Z", cameraZ);
+        // console.log("boxSize.z / 2", boxSize.z / 2);
+
+        camera.position.z = cameraZ;
+        // camera.position.z = cameraZ + boxSize.z / 2; <- to add some extra distance to camera 
+
+        scene.add(model);
+        // console.log("camera position: ",
+        //   `(X: ${camera.position.x}, Y: ${camera.position.y}, Z: ${camera.position.z})`)
+        // console.log("Helper camera position: ",
+        //   `(X: ${helperCamera.position.x}, Y: ${helperCamera.position.y}, Z: ${helperCamera.position.z})`)
+
+      },
+      undefined,
+      function(e) {
+        console.error(e);
+      });
+  }
 
   let dirLight = new THREE.DirectionalLight(0xffffff, 1);
   dirLight.position.set(0, 1, 0);
