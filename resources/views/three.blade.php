@@ -21,9 +21,17 @@
     OrbitControls
   } from 'https://unpkg.com/three@0.123.0/examples/jsm/controls/OrbitControls.js';
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-  // camera.lookAt(new THREE.Vector3(0, 0, 0));
+  const fov = 75;
+  const camera = new THREE.PerspectiveCamera(fov, window.innerWidth / window.innerHeight, 0.1, 5000);
+  // camera.position.z = 10;
+  camera.lookAt(new THREE.Vector3(0, 0, 0));
+
+  const helperCamera = new THREE.PerspectiveCamera(fov, window.innerWidth / window.innerHeight, 0.1, 1000);
+  helperCamera.position.z = 557;
+  helperCamera.lookAt(new THREE.Vector3(100, 100, 100));
+  const cameraPerspectiveHelper = new THREE.CameraHelper(helperCamera);
+  scene.add(cameraPerspectiveHelper);
 
   const axesHelper = new THREE.AxesHelper(50);
   scene.add(axesHelper);
@@ -41,13 +49,14 @@
     camera.aspect = window.innerWidth / window.innerHeight;
 
     camera.updateProjectionMatrix();
+    console.log("camera position: ", camera.position.x, camera.position.y, camera.position.z)
   })
 
   const raycaster = new THREE.Raycaster();
   const mouse = new THREE.Vector2();
 
   const controls = new OrbitControls(camera, renderer.domElement);
-  controls.target.set(0, 0.5, 0);
+  controls.target.set(0, 0, 0);
   controls.update();
   controls.enablePan = true;
   controls.enableDamping = true;
@@ -71,19 +80,28 @@
       model.position.y += (model.position.y - center.y);
       model.position.z += (model.position.z - center.z);
 
-      const maxDim = Math.max(boxSize.x, boxSize.z);
-      console.log(boxSize.x, boxSize.y, boxSize.z);
-      // console.log("boxSize - z:", boxSize.z);
-      console.log("maxDim", maxDim);
-      camera.position.z = (maxDim);
+      const maxDim = Math.max(boxSize.x, boxSize.y);
+      console.log("BOX SIZE: x:", boxSize.x, "y:", boxSize.y, "z:", boxSize.z);
+
+      //convert fov to radians
+      const fovRad = camera.fov * (Math.PI / 180);
+      //calculate camera distance from center of object based on maxDim
+      const cameraZ = (maxDim / 2) / (Math.tan(fovRad / 2));
+      console.log("Camera Z", cameraZ);
+      console.log("boxSize.z / 2", boxSize.z / 2);
+
+      camera.position.z = cameraZ;
+      // camera.position.z = cameraZ + boxSize.z / 2; <- to add some extra distance to camera 
 
       scene.add(model);
+      console.log("camera position: ", `(X: ${camera.position.x}, Y: ${camera.position.y}, Z: ${camera.position.z})`)
+      console.log("Helper camera position: ",
+        `(X: ${helperCamera.position.x}, Y: ${helperCamera.position.y}, Z: ${helperCamera.position.z})`)
     },
     undefined,
     function(e) {
       console.error(e);
     });
-
 
   let dirLight = new THREE.DirectionalLight(0xffffff, 1);
   dirLight.position.set(0, 1, 0);
@@ -105,7 +123,11 @@
   dirLight.position.set(-1, -1, 0);
   scene.add(dirLight);
 
+  let delta = 0;
   const render = function() {
+    // delta += 0.01;
+    // camera.position.x = Math.sin(delta) * 20;
+    // camera.position.y = Math.sin(delta) * 20;
     requestAnimationFrame(render);
     renderer.render(scene, camera);
   }
