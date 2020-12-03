@@ -71,7 +71,7 @@
   new RGBELoader()
     .setDataType(THREE.UnsignedByteType)
     .setPath('storage/hdr/')
-    .load('spot1Lux.hdr', function(hdrEquirect) {
+    .load('<?= $bg ?>', function(hdrEquirect) {
 
       const hdrCubeRenderTarget = pmremGenerator.fromEquirectangular(hdrEquirect);
       hdrEquirect.dispose();
