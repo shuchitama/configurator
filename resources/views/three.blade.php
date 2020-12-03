@@ -68,9 +68,10 @@
   const pmremGenerator = new THREE.PMREMGenerator(renderer);
   pmremGenerator.compileEquirectangularShader(); // what does this do?
 
+
   new RGBELoader()
     .setDataType(THREE.UnsignedByteType)
-    .setPath('storage/hdr/')
+    .setPath('storage/backgrounds/')
     .load('<?= $bg ?>', function(hdrEquirect) {
 
       const hdrCubeRenderTarget = pmremGenerator.fromEquirectangular(hdrEquirect);
@@ -81,6 +82,7 @@
       scene.environment = hdrCubeRenderTarget.texture; // what does this do?
       loadGLTF();
     });
+
 
   const loadGLTF = function() {
     const loader = new GLTFLoader();
