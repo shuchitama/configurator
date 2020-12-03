@@ -10,21 +10,23 @@ class ModelController extends Controller
     public function uploadModel(Request $request)
     {
         if($request->hasFile('model')) {
-            $filename = $request->file('model')->getClientOriginalName();
-            // if(auth()->user()->avatar) {
-            //     Storage::delete('/public/models/'.auth()->user()->avatar);
-            // };
-            $request->file('model')->storeAs('models', $filename, 'public');
-            return view('model', ['name' => $filename]);
+            $modelFilename = $request->file('model')->getClientOriginalName();
+            $request->file('model')->storeAs('models', $modelFilename, 'public');
+
+            if($request->hasFile('bkgd')) {
+                $bgFilename = $request->file('bkgd')->getClientOriginalName();
+                $request->file('bkgd')->storeAs('hdr', $bgFilename, 'public');
+            }
+            return view('model', ['model' => $modelFilename, 'bg' => $bgFilename]);
         } return "not uploaded :(";
     }
 
     public function uploadThree(Request $request)
     {
         if($request->hasFile('model')) {
-            $filename = $request->file('model')->getClientOriginalName();
-            $request->file('model')->storeAs('models', $filename, 'public');
-            return view('three', ['name' => $filename]);
+            $modelFilename = $request->file('model')->getClientOriginalName();
+            $request->file('model')->storeAs('models', $modelFilename, 'public');
+            return view('three', ['model' => $modelFilename]);
         } return "not uploaded :(";
     }
 }

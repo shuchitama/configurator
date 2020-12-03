@@ -10,7 +10,7 @@
   <script src="{{ asset('js/app.js') }}" defer></script>
 
   <link href="{{ asset('css/app.css') }}" rel="stylesheet">
-
+  <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@200;600&display=swap" rel="stylesheet">
 
@@ -54,10 +54,17 @@
         <div class="card-body">
           <form action="/model" method="post" enctype="multipart/form-data">
             @csrf
-            <input type="file" name="model" />
-            <input type="file" name="background" />
-            <input class="btn btn-primary" type="submit" value="Upload with Model Viewer" />
-            <input class="btn btn-primary" type="submit" value="Upload with threejs" formaction="/threejs" />
+            <div class="flex-col">
+              <label for="loadModel">Load model file</label>
+              <input type="file" name="model" id="loadModel" />
+
+              <label for="loadBkgd">Load background file</label>
+              <input type="file" id="loadBkgd" name="bkgd" />
+            </div>
+            <div class="flex-col">
+              <input class="btn btn-primary" type="submit" value="Upload with Model Viewer" />
+              <input class="btn btn-primary" type="submit" value="Upload with threejs" formaction="/threejs" />
+            </div>
           </form>
         </div>
       </div>

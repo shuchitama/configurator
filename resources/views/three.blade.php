@@ -31,7 +31,6 @@
   camera.lookAt(new THREE.Vector3(0, 0, 0));
 
   const helperCamera = new THREE.PerspectiveCamera(fov, window.innerWidth / window.innerHeight, 0.1, 1000);
-  helperCamera.position.z = 557;
   helperCamera.lookAt(new THREE.Vector3(100, 100, 100));
   const cameraPerspectiveHelper = new THREE.CameraHelper(helperCamera);
   scene.add(cameraPerspectiveHelper);
@@ -66,28 +65,27 @@
 
   let model = new THREE.Object3D();
   let box, center, boxSize;
+  const pmremGenerator = new THREE.PMREMGenerator(renderer);
+  pmremGenerator.compileEquirectangularShader(); // what does this do?
 
   new RGBELoader()
     .setDataType(THREE.UnsignedByteType)
     .setPath('storage/hdr/')
-    .load('royal_esplanade_1k.hdr', function(hdrEquirect) {
+    .load('spot1Lux.hdr', function(hdrEquirect) {
 
       const hdrCubeRenderTarget = pmremGenerator.fromEquirectangular(hdrEquirect);
       hdrEquirect.dispose();
       pmremGenerator.dispose();
 
       scene.background = hdrCubeRenderTarget.texture;
-      scene.environment = hdrCubeRenderTarget.texture;
+      scene.environment = hdrCubeRenderTarget.texture; // what does this do?
       loadGLTF();
     });
-
-  const pmremGenerator = new THREE.PMREMGenerator(renderer);
-  pmremGenerator.compileEquirectangularShader();
 
   const loadGLTF = function() {
     const loader = new GLTFLoader();
     // Load a glTF resource
-    loader.load('storage/models/<?= $name ?>', function(gltf) {
+    loader.load('storage/models/<?= $model ?>', function(gltf) {
         model = gltf.scene;
 
         // Get a bounding box for the model
