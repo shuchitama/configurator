@@ -30,12 +30,13 @@
   // camera.position.z = 10;
   camera.lookAt(new THREE.Vector3(0, 0, 0));
 
-  const helperCamera = new THREE.PerspectiveCamera(fov, window.innerWidth / window.innerHeight, 0.1, 1000);
-  helperCamera.lookAt(new THREE.Vector3(100, 100, 100));
-  const cameraPerspectiveHelper = new THREE.CameraHelper(helperCamera);
-  scene.add(cameraPerspectiveHelper);
+  // const helperCamera = new THREE.PerspectiveCamera(fov, window.innerWidth / window.innerHeight, 0.1, 1000);
+  // helperCamera.position.z = 100.7;
+  // helperCamera.lookAt(new THREE.Vector3(0, 0, 0));
+  // const cameraPerspectiveHelper = new THREE.CameraHelper(helperCamera);
+  // scene.add(cameraPerspectiveHelper);
 
-  const axesHelper = new THREE.AxesHelper(50);
+  const axesHelper = new THREE.AxesHelper(315);
   scene.add(axesHelper);
 
   const renderer = new THREE.WebGLRenderer({
@@ -94,22 +95,32 @@
         center = box.getCenter(new THREE.Vector3());
         boxSize = box.getSize(new THREE.Vector3());
 
+        // Visualize bounding box
+
+        const geometry = new THREE.BoxGeometry(boxSize.x, boxSize.y, boxSize.z);
+        const edges = new THREE.EdgesGeometry(geometry);
+        const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({
+          color: 0xffffff
+        }));
+        scene.add(line);
+
         // position model at origin
         model.position.x += (model.position.x - center.x);
         model.position.y += (model.position.y - center.y);
         model.position.z += (model.position.z - center.z);
 
         const maxDim = Math.max(boxSize.x, boxSize.y);
-        // console.log("BOX SIZE: x:", boxSize.x, "y:", boxSize.y, "z:", boxSize.z);
+        console.log("BOX SIZE: x:", boxSize.x, "y:", boxSize.y, "z:", boxSize.z);
 
         //convert fov to radians
         const fovRad = camera.fov * (Math.PI / 180);
         //calculate camera distance from center of object based on maxDim
-        const cameraZ = (maxDim / 2) / (Math.tan(fovRad / 2));
-        // console.log("Camera Z", cameraZ);
+        const cameraZ = 2 * (Math.tan(fovRad / 2)) / maxDim;
+        console.log("Camera Z", cameraZ + (boxSize.z / 2));
         // console.log("boxSize.z / 2", boxSize.z / 2);
 
-        camera.position.z = cameraZ;
+        camera.position.z = cameraZ + (boxSize.z / 2);
+        // helperCamera.position.z = cameraZ + boxSize.z / 2;
         // camera.position.z = cameraZ + boxSize.z / 2; <- to add some extra distance to camera 
 
         scene.add(model);
