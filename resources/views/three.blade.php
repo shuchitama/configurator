@@ -68,11 +68,10 @@
   const pmremGenerator = new THREE.PMREMGenerator(renderer);
   pmremGenerator.compileEquirectangularShader(); // what does this do?
 
-
   new RGBELoader()
     .setDataType(THREE.UnsignedByteType)
     .setPath('storage/backgrounds/')
-    .load('<?= $bg ?>', function(hdrEquirect) {
+    .load('<?= $bg ?? 'spot1Lux.hdr' ?>', function(hdrEquirect) {
 
       const hdrCubeRenderTarget = pmremGenerator.fromEquirectangular(hdrEquirect);
       hdrEquirect.dispose();

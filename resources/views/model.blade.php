@@ -29,8 +29,8 @@
 <body>
   <div class="imgbox">
     <a href="/" class="m-3 py-1 px-1 text-center bg-blue-400 border cursor-pointer rounded text-white">Back</a>
-    <model-viewer skybox-image="storage/backgrounds/<?= $bg ?>" class="center-fit" src="storage/models/<?= $model ?>"
-      auto-rotate camera-controls>
+    <model-viewer skybox-image="storage/backgrounds/<?= $bg ?? 'spot1Lux.hdr' ?>" class="center-fit"
+      src="storage/models/<?= $model ?>" auto-rotate camera-controls>
     </model-viewer>
   </div>
 </body>

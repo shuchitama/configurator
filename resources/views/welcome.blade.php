@@ -50,20 +50,23 @@
 
     <div class="content">
       <div class="card">
-        <h5 class="card-header">ADD BACKGROUND AND MODEL FILE TO GET STARTED</h5>
+        <h5 class="card-header font-semibold">ADD BACKGROUND AND MODEL FILE TO GET STARTED</h5>
         <div class="card-body">
-          <form action="/model" method="post" enctype="multipart/form-data">
+          <form class=" flex flex-row" action="/model" method="post" enctype="multipart/form-data">
             @csrf
-            <div class="flex-col">
-              <label for="loadModel">Load model file</label>
-              <input type="file" name="model" id="loadModel" />
-
-              <label for="loadBkgd">Load background file</label>
-              <input type="file" id="loadBkgd" name="bkgd" />
+            <div class="flex flex-column">
+              <div class="mb-3 flex flex-column">
+                <label class="text-left text-blue-500 font-semibold" for="loadModel">Load model file</label>
+                <input type="file" name="model" id="loadModel" />
+              </div>
+              <div class="flex flex-column">
+                <label class="text-left text-blue-500 font-semibold" for="loadBkgd">Load background file</label>
+                <input type="file" id="loadBkgd" name="bkgd" />
+              </div>
             </div>
-            <div class="flex-col">
-              <input class="btn btn-primary" type="submit" value="Upload with Model Viewer" />
-              <input class="btn btn-primary" type="submit" value="Upload with threejs" formaction="/threejs" />
+            <div class="flex flex-column">
+              <input class="btn btn-primary my-4" type="submit" value="Upload with Model Viewer" />
+              <input class="btn btn-primary my-2" type="submit" value="Upload with threejs" formaction="/threejs" />
             </div>
           </form>
         </div>

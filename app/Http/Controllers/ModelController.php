@@ -16,8 +16,9 @@ class ModelController extends Controller
             if($request->hasFile('bkgd')) {
                 $bgFilename = $request->file('bkgd')->getClientOriginalName();
                 $request->file('bkgd')->storeAs('backgrounds', $bgFilename, 'public');
+                return view('model', ['model' => $modelFilename, 'bg' => $bgFilename]);
             }
-            return view('model', ['model' => $modelFilename, 'bg' => $bgFilename]);
+            return view('model', ['model' => $modelFilename]);
         } return "not uploaded :(";
     }
 
