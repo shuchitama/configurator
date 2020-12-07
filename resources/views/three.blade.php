@@ -64,24 +64,29 @@
   controls.enablePan = true;
   controls.enableDamping = true;
 
+  const loader = new THREE.TextureLoader();
+  loader.load('https://images.pexels.com/photos/1205301/pexels-photo-1205301.jpeg', function(texture) {
+    scene.background = texture;
+  });
+
   let model = new THREE.Object3D();
   let box, center, boxSize;
   const pmremGenerator = new THREE.PMREMGenerator(renderer);
   pmremGenerator.compileEquirectangularShader(); // what does this do?
 
-  new RGBELoader()
-    .setDataType(THREE.UnsignedByteType)
-    .setPath('storage/backgrounds/')
-    .load('<?= $bg ?? 'spot1Lux.hdr' ?>', function(hdrEquirect) {
+  // new RGBELoader()
+  //   .setDataType(THREE.UnsignedByteType)
+  //   .setPath('storage/backgrounds/')
+  //   .load('<?= $bg ?? 'spot1Lux.hdr' ?>', function(hdrEquirect) {
 
-      const hdrCubeRenderTarget = pmremGenerator.fromEquirectangular(hdrEquirect);
-      hdrEquirect.dispose();
-      pmremGenerator.dispose();
+  //     const hdrCubeRenderTarget = pmremGenerator.fromEquirectangular(hdrEquirect);
+  //     hdrEquirect.dispose();
+  //     pmremGenerator.dispose();
 
-      scene.background = hdrCubeRenderTarget.texture;
-      scene.environment = hdrCubeRenderTarget.texture; // what does this do?
-      loadGLTF();
-    });
+  //     scene.background = hdrCubeRenderTarget.texture;
+  //     scene.environment = hdrCubeRenderTarget.texture; // what does this do?
+  //     loadGLTF();
+  //   });
 
 
   const loadGLTF = function() {
@@ -135,6 +140,7 @@
         console.error(e);
       });
   }
+  loadGLTF();
 
   let dirLight = new THREE.DirectionalLight(0xffffff, 1);
   dirLight.position.set(0, 1, 0);
