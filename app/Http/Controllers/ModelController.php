@@ -18,7 +18,7 @@ class ModelController extends Controller
                 $request->file('bkgd')->storeAs('backgrounds', $bgFilename, 'public');
                 return view('model', ['model' => $modelFilename, 'bg' => $bgFilename]);
             }
-            return view('model', ['model' => $modelFilename]);
+            return view('model', ['model' => $modelFilename, 'bg' => 'none']);
         } return "not uploaded :(";
     }
 
@@ -32,7 +32,7 @@ class ModelController extends Controller
                 $request->file('bkgd')->storeAs('backgrounds', $bgFilename, 'public');
                 return view('three', ['model' => $modelFilename, 'bg' => $bgFilename]);
             }
-            return view('three', ['model' => $modelFilename]);
+            return view('three', ['model' => $modelFilename, 'bg' => 'none']);
         } return "not uploaded :(";
     }
 }
