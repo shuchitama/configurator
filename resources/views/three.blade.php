@@ -35,8 +35,7 @@
   // Camera
 
   const fov = 75;
-  const camera = new THREE.PerspectiveCamera(fov, window.innerWidth / window.innerHeight, 0.1, 5000);
-  camera.position.z = 300;
+  const camera = new THREE.PerspectiveCamera(fov, window.innerWidth / window.innerHeight, 0.001, 5000);
   camera.lookAt(new THREE.Vector3(0, 0, 0));
 
   // const helperCamera = new THREE.PerspectiveCamera(fov, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -127,19 +126,16 @@
     const loader = new GLTFLoader();
     // Load a glTF resource
     loader.load('storage/models/<?= $model ?>', function(gltf) {
-        // model = gltf.scene;
+        model = gltf.scene;
 
-        model = gltf.scene.children[0];
-        model.scale.set(1.5, 1.5, 1.5);
+        if (gltf.animations.length !== 0) {
+          mixer = new THREE.AnimationMixer(model.children[0]);
+          mixer.clipAction(gltf.animations[0]).play();
+        }
 
-        mixer = new THREE.AnimationMixer(model);
-
-        mixer.clipAction(gltf.animations[0]).setDuration(1).play();
-
-        scene.add(model);
 
         // Get a bounding box for the model
-        box = new THREE.Box3().setFromObject(model.children[0]);
+        box = new THREE.Box3().setFromObject(model);
         center = box.getCenter(new THREE.Vector3());
         boxSize = box.getSize(new THREE.Vector3());
 
@@ -168,13 +164,12 @@
         console.log("Camera Z", cameraZ + (boxSize.z / 2));
         // console.log("boxSize.z / 2", boxSize.z / 2);
 
-        camera.position.z = cameraZ + (boxSize.z / 2);
+        camera.position.z = boxSize.z * 2;
+        // camera.position.z = cameraZ + (boxSize.z / 2);
 
         scene.add(model);
         console.log("camera position: ",
           `(X: ${camera.position.x}, Y: ${camera.position.y}, Z: ${camera.position.z})`)
-        // console.log("Helper camera position: ",
-        //   `(X: ${helperCamera.position.x}, Y: ${helperCamera.position.y}, Z: ${helperCamera.position.z})`)
 
       },
       undefined,
