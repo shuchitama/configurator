@@ -23,11 +23,20 @@
   import {
     OrbitControls
   } from 'https://unpkg.com/three@0.123.0/examples/jsm/controls/OrbitControls.js';
-  const scene = new THREE.Scene();
+
+  let mesh, mixer;
+  let prevTime = Date.now();
+
+  let container = document.createElement('div');
+  document.body.appendChild(container);
+
+  let scene = new THREE.Scene();
+
+  // Camera
 
   const fov = 75;
   const camera = new THREE.PerspectiveCamera(fov, window.innerWidth / window.innerHeight, 0.1, 5000);
-  // camera.position.z = 10;
+  camera.position.z = 300;
   camera.lookAt(new THREE.Vector3(0, 0, 0));
 
   // const helperCamera = new THREE.PerspectiveCamera(fov, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -39,13 +48,35 @@
   const axesHelper = new THREE.AxesHelper(315);
   scene.add(axesHelper);
 
+  // Lights
+
+  let dirLight = new THREE.DirectionalLight(0xffffff, 1);
+  dirLight.position.set(0, 1, 0);
+  scene.add(dirLight);
+
+  dirLight = new THREE.DirectionalLight(0xffffff, 1);
+  dirLight.position.set(1, 0, 0);
+  scene.add(dirLight);
+
+  dirLight = new THREE.DirectionalLight(0xffffff, 1);
+  dirLight.position.set(0, 0, 1);
+  scene.add(dirLight);
+
+  dirLight = new THREE.DirectionalLight(0xffffff, 1);
+  dirLight.position.set(0, 0, -1);
+  scene.add(dirLight);
+
+  dirLight = new THREE.DirectionalLight(0xffffff, 1);
+  dirLight.position.set(-1, -1, 0);
+  scene.add(dirLight);
+
   const renderer = new THREE.WebGLRenderer({
     antialias: true
   });
   renderer.setClearColor("#e5e5e5");
   renderer.setSize(window.innerWidth, window.innerHeight);
 
-  document.body.appendChild(renderer.domElement);
+  container.appendChild(renderer.domElement);
 
   window.addEventListener('resize', () => {
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -54,9 +85,6 @@
     camera.updateProjectionMatrix();
     console.log("camera position: ", camera.position.x, camera.position.y, camera.position.z)
   })
-
-  const raycaster = new THREE.Raycaster();
-  const mouse = new THREE.Vector2();
 
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.target.set(0, 0, 0);
@@ -99,10 +127,19 @@
     const loader = new GLTFLoader();
     // Load a glTF resource
     loader.load('storage/models/<?= $model ?>', function(gltf) {
-        model = gltf.scene;
+        // model = gltf.scene;
+
+        model = gltf.scene.children[0];
+        model.scale.set(1.5, 1.5, 1.5);
+
+        mixer = new THREE.AnimationMixer(model);
+
+        mixer.clipAction(gltf.animations[0]).setDuration(1).play();
+
+        scene.add(model);
 
         // Get a bounding box for the model
-        box = new THREE.Box3().setFromObject(model);
+        box = new THREE.Box3().setFromObject(model.children[0]);
         center = box.getCenter(new THREE.Vector3());
         boxSize = box.getSize(new THREE.Vector3());
 
@@ -120,6 +157,7 @@
         model.position.y += (model.position.y - center.y);
         model.position.z += (model.position.z - center.z);
 
+
         const maxDim = Math.max(boxSize.x, boxSize.y);
         console.log("BOX SIZE: x:", boxSize.x, "y:", boxSize.y, "z:", boxSize.z);
 
@@ -131,12 +169,10 @@
         // console.log("boxSize.z / 2", boxSize.z / 2);
 
         camera.position.z = cameraZ + (boxSize.z / 2);
-        // helperCamera.position.z = cameraZ + boxSize.z / 2;
-        // camera.position.z = cameraZ + boxSize.z / 2; <- to add some extra distance to camera 
 
         scene.add(model);
-        // console.log("camera position: ",
-        //   `(X: ${camera.position.x}, Y: ${camera.position.y}, Z: ${camera.position.z})`)
+        console.log("camera position: ",
+          `(X: ${camera.position.x}, Y: ${camera.position.y}, Z: ${camera.position.z})`)
         // console.log("Helper camera position: ",
         //   `(X: ${helperCamera.position.x}, Y: ${helperCamera.position.y}, Z: ${helperCamera.position.z})`)
 
@@ -158,36 +194,28 @@
     loadGLTF();
   }
 
-  let dirLight = new THREE.DirectionalLight(0xffffff, 1);
-  dirLight.position.set(0, 1, 0);
-  scene.add(dirLight);
+  function animate() {
 
-  dirLight = new THREE.DirectionalLight(0xffffff, 1);
-  dirLight.position.set(1, 0, 0);
-  scene.add(dirLight);
+    requestAnimationFrame(animate);
 
-  dirLight = new THREE.DirectionalLight(0xffffff, 1);
-  dirLight.position.set(0, 0, 1);
-  scene.add(dirLight);
+    render();
 
-  dirLight = new THREE.DirectionalLight(0xffffff, 1);
-  dirLight.position.set(0, 0, -1);
-  scene.add(dirLight);
+  }
 
-  dirLight = new THREE.DirectionalLight(0xffffff, 1);
-  dirLight.position.set(-1, -1, 0);
-  scene.add(dirLight);
+  function render() {
+    if (mixer) {
 
-  let delta = 0;
-  const render = function() {
-    // delta += 0.01;
-    // camera.position.x = Math.sin(delta) * 20;
-    // camera.position.y = Math.sin(delta) * 20;
-    requestAnimationFrame(render);
+      const time = Date.now();
+
+      mixer.update((time - prevTime) * 0.001);
+
+      prevTime = time;
+
+    }
     renderer.render(scene, camera);
   }
 
-  render();
+  animate();
   </script>
 </body>
 
