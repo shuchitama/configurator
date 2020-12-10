@@ -31,6 +31,7 @@
   document.body.appendChild(container);
 
   let scene = new THREE.Scene();
+  let clock = new THREE.Clock();
 
   // Camera
 
@@ -39,7 +40,7 @@
   camera.lookAt(new THREE.Vector3(0, 0, 0));
 
   // const helperCamera = new THREE.PerspectiveCamera(fov, window.innerWidth / window.innerHeight, 0.1, 1000);
-  // helperCamera.position.z = 100.7;
+  // helperCamera.position.z = 1.12;
   // helperCamera.lookAt(new THREE.Vector3(0, 0, 0));
   // const cameraPerspectiveHelper = new THREE.CameraHelper(helperCamera);
   // scene.add(cameraPerspectiveHelper);
@@ -127,15 +128,41 @@
     // Load a glTF resource
     loader.load('storage/models/<?= $model ?>', function(gltf) {
         model = gltf.scene;
+        console.log("MODEL", model)
+        // console.log("ANIMATIONS: ", gltf.animations)
+        const clips = gltf.animations;
 
-        if (gltf.animations.length !== 0) {
-          mixer = new THREE.AnimationMixer(model.children[0]);
-          mixer.clipAction(gltf.animations[0]).play();
-        }
+        // Play first clip on repeat if any animation clips exist
+        // if (gltf.animations.length !== 0) {
+        //   mixer = new THREE.AnimationMixer(model);
+        //   mixer.clipAction(gltf.animations[0]).play();
+        // }
+
+        // Play specific clip (assume clip exists)
+        mixer = new THREE.AnimationMixer(gltf.scene);
+        const clip = THREE.AnimationClip.findByName(clips, 'Death');
+        const action = mixer.clipAction(clip);
+        action.clampWhenFinished = true
+        action.timescale = -1;
+        // action.setLoop(THREE.LoopPingPong) // <- add this to only play once
+        action.play();
+
+        // Play all animations consecutively
+        // for (const clip of clips) {
+        //   mixer.addEventListener('finished', (event) => {
+
+        //     console.log('Finished animation action: ', event.action);
+        //     const action = mixer.clipAction(clip);
+        //     action.clampWhenFinished = true
+        //     action.setLoop(THREE.LoopOnce)
+        //     action.play()
+
+        //   });
+        // }
 
 
         // Get a bounding box for the model
-        box = new THREE.Box3().setFromObject(model);
+        box = new THREE.Box3().setFromObject(model.children[0]);
         center = box.getCenter(new THREE.Vector3());
         boxSize = box.getSize(new THREE.Vector3());
 
@@ -143,10 +170,10 @@
 
         const geometry = new THREE.BoxGeometry(boxSize.x, boxSize.y, boxSize.z);
         const edges = new THREE.EdgesGeometry(geometry);
-        const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({
+        const lines = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({
           color: 0xffffff
         }));
-        scene.add(line);
+        scene.add(lines);
 
         // position model at origin
         model.position.x += (model.position.x - center.x);
@@ -164,8 +191,8 @@
         console.log("Camera Z", cameraZ + (boxSize.z / 2));
         // console.log("boxSize.z / 2", boxSize.z / 2);
 
-        camera.position.z = boxSize.z * 2;
-        // camera.position.z = cameraZ + (boxSize.z / 2);
+        // camera.position.z = boxSize.z * 2;
+        camera.position.z = cameraZ + (boxSize.z / 2);
 
         scene.add(model);
         console.log("camera position: ",
@@ -200,11 +227,9 @@
   function render() {
     if (mixer) {
 
-      const time = Date.now();
+      let delta = clock.getDelta();
 
-      mixer.update((time - prevTime) * 0.001);
-
-      prevTime = time;
+      mixer.update(delta);
 
     }
     renderer.render(scene, camera);
