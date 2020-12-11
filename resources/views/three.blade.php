@@ -128,8 +128,6 @@
     // Load a glTF resource
     loader.load('storage/models/<?= $model ?>', function(gltf) {
         model = gltf.scene;
-        console.log("MODEL", model)
-        // console.log("ANIMATIONS: ", gltf.animations)
         const clips = gltf.animations;
 
         // Play first clip on repeat if any animation clips exist
@@ -141,11 +139,24 @@
         // Play specific clip (assume clip exists)
         mixer = new THREE.AnimationMixer(gltf.scene);
         const clip = THREE.AnimationClip.findByName(clips, 'Death');
+        console.log(clip)
+
         const action = mixer.clipAction(clip);
-        action.clampWhenFinished = true
-        action.timescale = -1;
-        // action.setLoop(THREE.LoopPingPong) // <- add this to only play once
+        if (action.time === 0) {
+          console.log("Duration: ", action.getClip().duration)
+          action.time = action.getClip().duration;
+        }
+
+        action.paused = false;
+        action.timeScale = -1;
+        // action.setEffectiveTimeScale = -1;
+        console.log("timescale", action.timeScale);
+        action.setLoop(THREE.LoopOnce);
         action.play();
+
+        // const animation = new Animation(gltf.scene, clips);
+        // animation.playClipByIndex(0);
+
 
         // Play all animations consecutively
         // for (const clip of clips) {
@@ -182,21 +193,22 @@
 
 
         const maxDim = Math.max(boxSize.x, boxSize.y);
-        console.log("BOX SIZE: x:", boxSize.x, "y:", boxSize.y, "z:", boxSize.z);
+        // console.log("BOX SIZE: x:", boxSize.x, "y:", boxSize.y, "z:", boxSize.z);
 
         //convert fov to radians
         const fovRad = camera.fov * (Math.PI / 180);
         //calculate camera distance from center of object based on maxDim
         const cameraZ = 2 * (Math.tan(fovRad / 2)) / maxDim;
-        console.log("Camera Z", cameraZ + (boxSize.z / 2));
+        // console.log("Camera Z", cameraZ + (boxSize.z / 2));
         // console.log("boxSize.z / 2", boxSize.z / 2);
 
         // camera.position.z = boxSize.z * 2;
-        camera.position.z = cameraZ + (boxSize.z / 2);
+        camera.position.z = 10;
+        // camera.position.z = cameraZ + (boxSize.z / 2);
 
         scene.add(model);
-        console.log("camera position: ",
-          `(X: ${camera.position.x}, Y: ${camera.position.y}, Z: ${camera.position.z})`)
+        // console.log("camera position: ",
+        //   `(X: ${camera.position.x}, Y: ${camera.position.y}, Z: ${camera.position.z})`)
 
       },
       undefined,
