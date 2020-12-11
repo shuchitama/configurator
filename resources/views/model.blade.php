@@ -62,26 +62,17 @@
 <body>
   <div class="imgbox">
     <a href="/" class="m-3 py-1 px-1 text-center bg-blue-400 border cursor-pointer rounded text-white">Back</a>
-    <model-viewer id="model-viewer" autoplay animation-name="Running"
+    <model-viewer onload="myFunction()" id="model-viewer" autoplay
       skybox-image="storage/backgrounds/<?= $bg ?? 'quarry_01_1k.hdr' ?>" class="center-fit"
       src="storage/models/<?= $model ?>" auto-rotate camera-controls>
-      <!-- <button slot="hotspot-visor" data-position="0 1.75 0.35" data-normal="0 0 1"></button>
-      <button slot="hotspot-hand" data-position="-0.54 0.93 0.1" data-normal="-0.73 0.05 0.69">
-        <div id="annotation">This hotspot disappears completely</div>
-      </button>
-      <button slot="hotspot-foot" data-position="0.16 0.1 0.17" data-normal="-0.07 0.97 0.23"
-        data-visibility-attribute="visible"></button>
-      <div id="annotation">This annotation is fixed in screen-space</div> -->
     </model-viewer>
     <script>
-    (() => {
+    function myFunction() {
       const modelViewer = document.querySelector('#model-viewer');
 
-      self.setInterval(() => {
-        modelViewer.animationName = modelViewer.animationName === 'Running' ?
-          'Wave' : 'Running';
-      }, 1500.0);
-    })();
+      // const allAnimations = modelViewer.availableAnimations;
+      console.log(modelViewer.availableAnimations)
+    }
     </script>
   </div>
 </body>
