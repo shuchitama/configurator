@@ -25,31 +25,11 @@
   }
 
   button {
-    display: block;
-    width: 20px;
-    height: 20px;
-    border-radius: 10px;
-    border: none;
-    background-color: blue;
-    box-sizing: border-box;
-  }
-
-  button[slot="hotspot-hand"] {
-    --min-hotspot-opacity: 0;
-    background-color: red;
-  }
-
-  button[slot="hotspot-foot"]:not([data-visible]) {
-    background-color: transparent;
-    border: 3px solid blue;
-  }
-
-  #annotation {
-    background-color: #888888;
-    position: absolute;
-    transform: translate(10px, 10px);
-    border-radius: 10px;
-    padding: 10px;
+    /* display: block; */
+    border: solid 1px;
+    padding: 0 5px;
+    /* background-color:  */
+    /* box-sizing: border-box; */
   }
 
   /* This keeps child nodes hidden while the element loads */
@@ -62,15 +42,27 @@
 <body>
   <div class="imgbox">
     <a href="/" class="m-3 py-1 px-1 text-center bg-blue-400 border cursor-pointer rounded text-white">Back</a>
-    <model-viewer onload="myFunction()" id="model-viewer" autoplay animation-name="Death"
+    <model-viewer id="model-viewer" autoplay animation-name="Death"
       skybox-image="storage/backgrounds/<?= $bg ?? 'quarry_01_1k.hdr' ?>" class="center-fit"
       src="storage/models/<?= $model ?>" auto-rotate camera-controls>
+      <button id="reverse" onclick="reverse()">Reverse Animation</button>
+      <button id="reset" onclick="reset()">Reset Animation</button>
     </model-viewer>
+
     <script>
-    function myFunction() {
+    let requestID;
+
+    function reverse() {
       const modelViewer = document.querySelector('#model-viewer');
       modelViewer.currentTime -= 0.03;
-      requestAnimationFrame(myFunction);
+      requestID = requestAnimationFrame(reverse);
+    }
+
+    function reset() {
+      const modelViewer = document.querySelector('#model-viewer');
+      cancelAnimationFrame(requestID);
+      modelViewer.currentTime = 0;
+      modelViewer.play();
     }
     </script>
   </div>
