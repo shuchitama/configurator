@@ -42,9 +42,9 @@
 <body>
   <div class="imgbox">
     <a href="/" class="m-3 py-1 px-1 text-center bg-blue-400 border cursor-pointer rounded text-white">Back</a>
-    <model-viewer id="model-viewer" autoplay animation-name="Death"
-      skybox-image="storage/backgrounds/<?= $bg ?? 'quarry_01_1k.hdr' ?>" class="center-fit"
-      src="storage/models/<?= $model ?>" auto-rotate camera-controls>
+    <model-viewer id="model-viewer" class="center-fit" autoplay animation-name="Death"
+      src="storage/models/<?= $model ?>" auto-rotate camera-controls @if ($bg !=='none' )
+      skybox-image="storage/backgrounds/<?= $bg ?>" @endif>
       <button id="reverse" onclick="reverse()">Reverse Animation</button>
       <button id="reset" onclick="reset()">Reset Animation</button>
     </model-viewer>
