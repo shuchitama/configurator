@@ -38,14 +38,15 @@
     position: fixed;
     top: 0;
     right: 0;
-    padding: 5%;
+    margin-top: 60px;
+    margin-right: 60px;
     height: 100%;
     z-index: 99;
     transition: all 0.5s ease;
   }
 
   .ic_box {
-    margin-top: 50%;
+    margin-top: 20px;
     transition: all 0.5s ease;
   }
   </style>
