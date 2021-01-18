@@ -38,15 +38,43 @@
     position: fixed;
     top: 0;
     right: 0;
-    margin-top: 60px;
-    margin-right: 60px;
     height: 100%;
     z-index: 99;
     transition: all 0.5s ease;
   }
 
+  .infoBoxMain.info_active {
+    width: 250px;
+    transition: all 0.5s ease;
+  }
+
+  .iconsBox {
+    margin-top: 60px;
+  }
+
   .ic_box {
-    margin-top: 20px;
+    display: block;
+    width: 42px;
+    background: transparent;
+    text-align: center;
+    border-radius: 50%;
+    -moz-border-radius: 50%;
+    -webkit-border-radius: 50%;
+    cursor: pointer;
+    margin: 0 0 32px -110px;
+    position: relative;
+    transition: all 0.5s ease;
+  }
+
+  .infoShow {
+    background: rgba(255, 255, 255, 0.7);
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    padding: 60px 22px;
+    width: 100%;
+    overflow-x: hidden;
     transition: all 0.5s ease;
   }
   </style>
@@ -59,16 +87,17 @@
       auto-rotate camera-controls @if ($bg !=='none' ) skybox-image="storage/backgrounds/<?= $bg ?>" @endif>
 
       <div class="infoBoxMain">
-        <div class="ic_box" id="a1" onclick="HideShowDiv(1)">
-          <img src="{{asset('icons/crossSection.png')}}" alt="crossSection">
+        <div class="iconsBox">
+          <div class="ic_box" id="a1" onclick="HideShowDiv(1)">
+            <img src="{{asset('icons/crossSection.png')}}" alt="crossSection">
+          </div>
+          <div class="ic_box" id="a1" onclick="HideShowDiv(2)">
+            <img src="{{asset('icons/annotation.png')}}" alt="annotation">
+          </div>
+          <div class="ic_box" id="a1" onclick="HideShowDiv(3)">
+            <img src="{{asset('icons/download.png')}}" alt="download">
+          </div>
         </div>
-        <div class="ic_box" id="a1" onclick="HideShowDiv(2)">
-          <img src="{{asset('icons/annotation.png')}}" alt="annotation">
-        </div>
-        <div class="ic_box" id="a1" onclick="HideShowDiv(3)">
-          <img src="{{asset('icons/download.png')}}" alt="download">
-        </div>
-
         <div id="cross-section" class="infoShow" style="display:none">
           Hello from cross-section
         </div>
@@ -86,30 +115,58 @@
     function HideShowDiv(id) {
       if (id == 1) {
         $("#cross-section").show();
-        $("#download", "#annotation").hide();
+        $("#download, #annotation").hide();
+        if ($('#cross-section').hasClass('active')) {
+          $('#cross-section').animate({
+            'right': '-201'
+          });
+          $('#cross-section, #a1').removeClass('active');
+          $(".infoBoxMain").removeClass('info_active');
+        } else {
+          $('#cross-section').animate({
+            'right': '0'
+          });
+          $('#cross-section').addClass('active');
+          $('#annotation, #download').removeClass('active');
+          $(".infoBoxMain").addClass('info_active');
+        }
       }
       if (id == 2) {
         $("#annotation").show();
-        $("#cross-section", "#download").hide();
+        $("#cross-section, #download").hide();
+        if ($('#annotation').hasClass('active')) {
+          $('#annotation').animate({
+            'right': '-201'
+          });
+          $('#annotation, #a1').removeClass('active');
+          $(".infoBoxMain").removeClass('info_active');
+        } else {
+          $('#annotation').animate({
+            'right': '0'
+          });
+          $('#annotation').addClass('active');
+          $('#cross-section, #download').removeClass('active');
+          $(".infoBoxMain").addClass('info_active');
+        }
       }
       if (id == 3) {
         $("#download").show();
-        $("#cross-section", "#annotation").hide();
+        $("#cross-section, #annotation").hide();
+        if ($('#download').hasClass('active')) {
+          $('#download').animate({
+            'right': '-201'
+          });
+          $('#download, #a1').removeClass('active');
+          $(".infoBoxMain").removeClass('info_active');
+        } else {
+          $('#download').animate({
+            'right': '0'
+          });
+          $('#download').addClass('active');
+          $('#annotation, #cross-section').removeClass('active');
+          $(".infoBoxMain").addClass('info_active');
+        }
       }
-      // if ($('#div1').hasClass('active')) {
-      //   $('#div1').animate({
-      //     'right': '-201'
-      //   });
-      //   $('#div1, #a1').removeClass('active');
-      //   $("#a1").parent().parent().removeClass('info_active');
-      // } else {
-      //   $('#div1').animate({
-      //     'right': '0'
-      //   });
-      //   $('#div1, #a1').addClass('active');
-      //   $('#div2, #div3, #div4, #div5, #a2, #a3, #a4').removeClass('active');
-      //   $("#a1").parent().parent().addClass('info_active');
-      // }
     }
     </script>
   </div>
