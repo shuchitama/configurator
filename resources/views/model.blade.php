@@ -77,14 +77,24 @@
     overflow-x: hidden;
     transition: all 0.5s ease;
   }
+
+  .infoShow h2 {
+    letter-spacing: 0;
+    font-size: 20px;
+    line-height: normal;
+    font-family: 'Roboto Condensed', sans-serif;
+    color: #000000;
+    font-weight: 700;
+    text-align: center;
+  }
   </style>
 </head>
 
 <body>
   <div class="imgbox">
     <a href="/" class="m-3 py-1 px-1 text-center bg-blue-400 border cursor-pointer rounded text-white">Back</a>
-    <model-viewer id="model-viewer" class="center-fit" autoplay animation-name="Idle" src="storage/models/<?= $model ?>"
-      auto-rotate camera-controls @if ($bg !=='none' ) skybox-image="storage/backgrounds/<?= $bg ?>" @endif>
+    <model-viewer id="model-viewer" class="center-fit" autoplay src="storage/models/<?= $model ?>" auto-rotate
+      camera-controls @if ($bg !=='none' ) skybox-image="storage/backgrounds/<?= $bg ?>" @endif>
 
       <div class="infoBoxMain">
         <div class="iconsBox">
@@ -99,13 +109,13 @@
           </div>
         </div>
         <div id="cross-section" class="infoShow" style="display:none">
-          Hello from cross-section
+          <h2>Cross Section</h2>
         </div>
         <div id="annotation" class="infoShow" style="display:none">
-          Hello from annotation
+          <h2>Annotations</h2>
         </div>
         <div id="download" class="infoShow" style="display:none">
-          Hello from download
+          <h2>Export Image</h2>
         </div>
       </div>
 
