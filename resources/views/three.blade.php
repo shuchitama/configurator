@@ -23,231 +23,325 @@
   import {
     OrbitControls
   } from 'https://unpkg.com/three@0.123.0/examples/jsm/controls/OrbitControls.js';
-
-  let mesh, mixer;
-  let prevTime = Date.now();
+  import {
+    DecalGeometry
+  } from 'https://threejs.org/examples/jsm/geometries/DecalGeometry.js';
+  import Stats from 'https://threejs.org/examples/jsm/libs/stats.module.js';
+  import {
+    GUI
+  } from 'https://threejs.org/examples/jsm/libs/dat.gui.module.js';
 
   let container = document.createElement('div');
   document.body.appendChild(container);
 
-  let scene = new THREE.Scene();
-  let clock = new THREE.Clock();
+  var renderer, scene, camera, stats;
+  var mesh;
+  var planes, planeObjects, planeHelpers, object;
 
-  // Camera
+  var textureLoader = new THREE.TextureLoader();
+  var size = new THREE.Vector3(10, 10, 10);
 
-  const fov = 75;
-  const camera = new THREE.PerspectiveCamera(fov, window.innerWidth / window.innerHeight, 0.001, 5000);
-  camera.lookAt(new THREE.Vector3(0, 0, 0));
+  var params = {
 
-  // const helperCamera = new THREE.PerspectiveCamera(fov, window.innerWidth / window.innerHeight, 0.1, 1000);
-  // helperCamera.position.z = 1.12;
-  // helperCamera.lookAt(new THREE.Vector3(0, 0, 0));
-  // const cameraPerspectiveHelper = new THREE.CameraHelper(helperCamera);
-  // scene.add(cameraPerspectiveHelper);
+    planeX: {
 
-  const axesHelper = new THREE.AxesHelper(315);
-  scene.add(axesHelper);
+      constant: 0,
+      negated: false,
+      displayHelper: false
 
-  // Lights
+    },
+    planeY: {
 
-  let dirLight = new THREE.DirectionalLight(0xffffff, 1);
-  dirLight.position.set(0, 1, 0);
-  scene.add(dirLight);
+      constant: 0,
+      negated: false,
+      displayHelper: false
 
-  dirLight = new THREE.DirectionalLight(0xffffff, 1);
-  dirLight.position.set(1, 0, 0);
-  scene.add(dirLight);
+    },
+    planeZ: {
 
-  dirLight = new THREE.DirectionalLight(0xffffff, 1);
-  dirLight.position.set(0, 0, 1);
-  scene.add(dirLight);
-
-  dirLight = new THREE.DirectionalLight(0xffffff, 1);
-  dirLight.position.set(0, 0, -1);
-  scene.add(dirLight);
-
-  dirLight = new THREE.DirectionalLight(0xffffff, 1);
-  dirLight.position.set(-1, -1, 0);
-  scene.add(dirLight);
-
-  const renderer = new THREE.WebGLRenderer({
-    antialias: true
-  });
-  renderer.setClearColor("#e5e5e5");
-  renderer.setSize(window.innerWidth, window.innerHeight);
-
-  container.appendChild(renderer.domElement);
-
-  window.addEventListener('resize', () => {
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    camera.aspect = window.innerWidth / window.innerHeight;
-
-    camera.updateProjectionMatrix();
-    console.log("camera position: ", camera.position.x, camera.position.y, camera.position.z)
-  })
-
-  const controls = new OrbitControls(camera, renderer.domElement);
-  controls.target.set(0, 0, 0);
-  controls.update();
-  controls.enablePan = true;
-  controls.enableDamping = true;
-
-  const loadImg = function() {
-    const loader = new THREE.TextureLoader();
-    loader.load('storage/backgrounds/<?= $bg ?>',
-      function(texture) {
-        scene.background = texture;
-      });
-    loadGLTF();
-  }
-
-  let model = new THREE.Object3D();
-  let box, center, boxSize;
-  const pmremGenerator = new THREE.PMREMGenerator(renderer);
-  pmremGenerator.compileEquirectangularShader(); // what does this do?
-
-  const loadHDR = function() {
-    new RGBELoader()
-      .setDataType(THREE.UnsignedByteType)
-      .setPath('storage/backgrounds/')
-      .load('<?= $bg ?>', function(hdrEquirect) {
-
-        const hdrCubeRenderTarget = pmremGenerator.fromEquirectangular(hdrEquirect);
-        hdrEquirect.dispose();
-        pmremGenerator.dispose();
-
-        scene.background = hdrCubeRenderTarget.texture;
-        scene.environment = hdrCubeRenderTarget.texture; // what does this do?
-        loadGLTF();
-      });
-  }
-
-
-  const loadGLTF = function() {
-    const loader = new GLTFLoader();
-    // Load a glTF resource
-    loader.load('storage/models/<?= $model ?>', function(gltf) {
-        model = gltf.scene;
-        const clips = gltf.animations;
-
-        // Play first clip on repeat if any animation clips exist
-        // if (gltf.animations.length !== 0) {
-        //   mixer = new THREE.AnimationMixer(model);
-        //   mixer.clipAction(gltf.animations[0]).play();
-        // }
-
-        // Play specific clip (assume clip exists)
-        mixer = new THREE.AnimationMixer(gltf.scene);
-        const clip = THREE.AnimationClip.findByName(clips, 'Death');
-        console.log(clip)
-
-        const action = mixer.clipAction(clip);
-        if (action.time === 0) {
-          console.log("Duration: ", action.getClip().duration)
-          action.time = action.getClip().duration;
-        }
-
-        action.paused = false;
-        action.timeScale = -1;
-        // action.setEffectiveTimeScale = -1;
-        console.log("timescale", action.timeScale);
-        action.setLoop(THREE.LoopOnce);
-        action.play();
-
-        // const animation = new Animation(gltf.scene, clips);
-        // animation.playClipByIndex(0);
-
-
-        // Play all animations consecutively
-        // for (const clip of clips) {
-        //   mixer.addEventListener('finished', (event) => {
-
-        //     console.log('Finished animation action: ', event.action);
-        //     const action = mixer.clipAction(clip);
-        //     action.clampWhenFinished = true
-        //     action.setLoop(THREE.LoopOnce)
-        //     action.play()
-
-        //   });
-        // }
-
-
-        // Get a bounding box for the model
-        box = new THREE.Box3().setFromObject(model.children[0]);
-        center = box.getCenter(new THREE.Vector3());
-        boxSize = box.getSize(new THREE.Vector3());
-
-        // Visualize bounding box
-
-        const geometry = new THREE.BoxGeometry(boxSize.x, boxSize.y, boxSize.z);
-        const edges = new THREE.EdgesGeometry(geometry);
-        const lines = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({
-          color: 0xffffff
-        }));
-        scene.add(lines);
-
-        // position model at origin
-        model.position.x += (model.position.x - center.x);
-        model.position.y += (model.position.y - center.y);
-        model.position.z += (model.position.z - center.z);
-
-
-        const maxDim = Math.max(boxSize.x, boxSize.y);
-        // console.log("BOX SIZE: x:", boxSize.x, "y:", boxSize.y, "z:", boxSize.z);
-
-        //convert fov to radians
-        const fovRad = camera.fov * (Math.PI / 180);
-        //calculate camera distance from center of object based on maxDim
-        const cameraZ = 2 * (Math.tan(fovRad / 2)) / maxDim;
-        // console.log("Camera Z", cameraZ + (boxSize.z / 2));
-        // console.log("boxSize.z / 2", boxSize.z / 2);
-
-        // camera.position.z = boxSize.z * 2;
-        camera.position.z = 10;
-        // camera.position.z = cameraZ + (boxSize.z / 2);
-
-        scene.add(model);
-        // console.log("camera position: ",
-        //   `(X: ${camera.position.x}, Y: ${camera.position.y}, Z: ${camera.position.z})`)
-
-      },
-      undefined,
-      function(e) {
-        console.error(e);
-      });
-  }
-
-  if ('<?= $bg ?>' !== 'none') {
-    const fileType = '<?= $bg ?>'.split(".")[1];
-    if (fileType === 'hdr') {
-      loadHDR();
-    } else {
-      loadImg();
+      constant: 0,
+      negated: false,
+      displayHelper: false
     }
-  } else {
-    loadGLTF();
+  };
+
+  window.addEventListener('load', init);
+
+  function init() {
+
+    renderer = new THREE.WebGLRenderer({
+      antialias: true
+    });
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setClearColor("#e5e5e5");
+    renderer.localClippingEnabled = true;
+    container.appendChild(renderer.domElement);
+
+    stats = new Stats();
+    container.appendChild(stats.dom);
+
+    scene = new THREE.Scene();
+
+    camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
+    camera.position.z = 100;
+    camera.position.y = 40
+    camera.position.x = 60
+    camera.target = new THREE.Vector3();
+
+    var controls = new OrbitControls(camera, renderer.domElement);
+    controls.minDistance = 50;
+    controls.maxDistance = 200;
+
+    //lights
+
+    let dirLight = new THREE.DirectionalLight(0xffffff, 1);
+    dirLight.position.set(0, 1, 0);
+    scene.add(dirLight);
+    dirLight = new THREE.DirectionalLight(0xffffff, 1);
+    dirLight.position.set(1, 0, 0);
+    scene.add(dirLight);
+    dirLight = new THREE.DirectionalLight(0xffffff, 1);
+    dirLight.position.set(0, 0, 1);
+    scene.add(dirLight);
+    dirLight = new THREE.DirectionalLight(0xffffff, 1);
+    dirLight.position.set(0, 0, -1);
+    scene.add(dirLight);
+    dirLight = new THREE.DirectionalLight(0xffffff, 1);
+    dirLight.position.set(-1, -1, 0);
+    scene.add(dirLight);
+
+    // NOTE: Setup Plane
+    planes = [
+      new THREE.Plane(new THREE.Vector3(-1, 0, 0), 50),
+      new THREE.Plane(new THREE.Vector3(0, -1, 0), 12),
+      new THREE.Plane(new THREE.Vector3(0, 0, -1), 50)
+    ];
+
+    planeHelpers = planes.map(p => new THREE.PlaneHelper(p, 50, 0xffffff));
+    planeHelpers.forEach(ph => {
+
+      ph.visible = false;
+      scene.add(ph);
+
+    });
+
+
+    object = new THREE.Group();
+    object.scale.set(20, 20, 20);
+    scene.add(object);
+
+    loadLeePerrySmith();
+
+    window.addEventListener('resize', onWindowResize, false);
+
+    var moved = false;
+
+    controls.addEventListener('change', function() {
+
+      moved = true;
+
+    });
+
+    var gui = new GUI();
+    var planeX = gui.addFolder('planeX');
+    planeX.add(params.planeX, 'displayHelper').onChange(v => planeHelpers[0].visible = v);
+    planeX.add(params.planeX, 'constant').min(-50).max(50).onChange(d => planes[0].constant = d);
+    planeX.add(params.planeX, 'negated').onChange(() => {
+
+      planes[0].negate();
+      params.planeX.constant = planes[0].constant;
+
+    });
+    planeX.open();
+
+    var planeY = gui.addFolder('planeY');
+    planeY.add(params.planeY, 'displayHelper').onChange(v => planeHelpers[1].visible = v);
+    planeY.add(params.planeY, 'constant').min(-50).max(50).onChange(d => planes[1].constant = d);
+    planeY.add(params.planeY, 'negated').onChange(() => {
+
+      planes[1].negate();
+      params.planeY.constant = planes[1].constant;
+
+    });
+    planeY.open();
+
+    var planeZ = gui.addFolder('planeZ');
+    planeZ.add(params.planeZ, 'displayHelper').onChange(v => planeHelpers[2].visible = v);
+    planeZ.add(params.planeZ, 'constant').min(-50).max(50).onChange(d => planes[2].constant = d);
+    planeZ.add(params.planeZ, 'negated').onChange(() => {
+
+      planes[2].negate();
+      params.planeZ.constant = planes[2].constant;
+
+    });
+    planeZ.open();
+
+    gui.open();
+
+    onWindowResize();
+    animate();
+
+  }
+
+  function createPlaneStencilGroup(geometry, plane, renderOrder) {
+
+    var group = new THREE.Group();
+    var baseMat = new THREE.MeshBasicMaterial();
+    baseMat.depthWrite = false;
+    // baseMat.depthTest = false;
+    baseMat.colorWrite = false;
+    // baseMat.stencilWrite = true;
+    // baseMat.stencilFunc = THREE.AlwaysStencilFunc;
+
+    // back faces
+    var mat0 = baseMat.clone();
+    mat0.side = THREE.BackSide;
+    mat0.clippingPlanes = [plane];
+    mat0.stencilFail = THREE.IncrementWrapStencilOp;
+    mat0.stencilZFail = THREE.IncrementWrapStencilOp;
+    mat0.stencilZPass = THREE.IncrementWrapStencilOp;
+
+    var mesh0 = new THREE.Mesh(geometry, mat0);
+    mesh0.renderOrder = renderOrder;
+    group.add(mesh0);
+
+    // front faces
+    var mat1 = baseMat.clone();
+    mat1.side = THREE.FrontSide;
+    mat1.clippingPlanes = [plane];
+    mat1.stencilFail = THREE.DecrementWrapStencilOp;
+    mat1.stencilZFail = THREE.DecrementWrapStencilOp;
+    mat1.stencilZPass = THREE.DecrementWrapStencilOp;
+
+    var mesh1 = new THREE.Mesh(geometry, mat1);
+    mesh1.renderOrder = renderOrder;
+
+    group.add(mesh1);
+
+    return group;
+
+  }
+
+  function loadLeePerrySmith() {
+
+    var loader = new GLTFLoader();
+
+    loader.load('storage/models/<?= $model ?>', function(gltf) {
+
+      mesh = gltf.scene.children[0];
+      console.log("mesh", mesh);
+
+      mesh.material = new THREE.MeshPhongMaterial({
+        // specular: 0x111111,
+        map: textureLoader.load('https://threejs.org/examples/models/gltf/LeePerrySmith/Map-COL.jpg'),
+        // specularMap: textureLoader.load('https://threejs.org/examples/models/gltf/LeePerrySmith/Map-SPEC.jpg'),
+        // normalMap: textureLoader.load(
+        //   'https://threejs.org/examples/models/gltf/LeePerrySmith/Infinite-Level_02_Tangent_SmoothUV.jpg'),
+        // shininess: 25,
+      });
+
+      // Set up clip plane rendering
+      planeObjects = [];
+      var planeGeom = new THREE.PlaneBufferGeometry(100, 100);
+      for (var i = 0; i < 3; i++) {
+
+        var poGroup = new THREE.Group();
+        var plane = planes[i];
+        var stencilGroup = createPlaneStencilGroup(mesh.geometry, plane, i + 1);
+
+        // plane is clipped by the other clipping planes
+        var planeMat =
+          new THREE.MeshStandardMaterial({
+
+            color: 0xE91E63,
+            metalness: 0.1,
+            roughness: 0.75,
+            clippingPlanes: planes.filter(p => p !== plane),
+
+            stencilWrite: true,
+            stencilRef: 0,
+            stencilFunc: THREE.NotEqualStencilFunc,
+            stencilFail: THREE.ReplaceStencilOp,
+            stencilZFail: THREE.ReplaceStencilOp,
+            stencilZPass: THREE.ReplaceStencilOp,
+
+          });
+        var po = new THREE.Mesh(planeGeom, planeMat);
+        po.onAfterRender = function(renderer) {
+
+          renderer.clearStencil();
+
+        };
+
+        po.renderOrder = i + 1.1;
+        object.add(stencilGroup);
+        poGroup.add(po);
+        planeObjects.push(po);
+        scene.add(poGroup);
+      }
+
+      var material = new THREE.MeshStandardMaterial({
+
+        color: 0xFFC107,
+        // specular: 0x111111,
+        map: textureLoader.load('https://threejs.org/examples/models/gltf/LeePerrySmith/Map-COL.jpg'),
+        // specularMap: textureLoader.load('https://threejs.org/examples/models/gltf/LeePerrySmith/Map-SPEC.jpg'),
+        // normalMap: textureLoader.load(
+        //   'https://threejs.org/examples/models/gltf/LeePerrySmith/Infinite-Level_02_Tangent_SmoothUV.jpg'),
+        // shininess: 25,
+        metalness: 0.1,
+        roughness: 0.75,
+        clippingPlanes: planes,
+        clipShadows: true,
+        shadowSide: THREE.DoubleSide,
+      });
+
+      // add the color
+      var clippedColorFront = new THREE.Mesh(mesh.geometry, material);
+      clippedColorFront.castShadow =
+        true;
+      clippedColorFront.renderOrder = 6;
+      object.add(clippedColorFront);
+
+      // scene.add(mesh);
+      mesh.scale.set(10, 10, 10);
+    });
+
+  }
+
+  function onWindowResize() {
+
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
   }
 
   function animate() {
+    if (planeObjects && planeObjects.length > 0) {
+      for (var i = 0; i < planeObjects.length; i++) {
+
+        var plane = planes[i];
+        var po = planeObjects[i];
+        plane.coplanarPoint(po.position);
+        po.lookAt(
+          po.position.x - plane.normal.x,
+          po.position.y - plane.normal.y,
+          po.position.z - plane.normal.z,
+        );
+
+      }
+    }
 
     requestAnimationFrame(animate);
 
-    render();
-
-  }
-
-  function render() {
-    if (mixer) {
-
-      let delta = clock.getDelta();
-
-      mixer.update(delta);
-
-    }
     renderer.render(scene, camera);
-  }
 
-  animate();
+    stats.update();
+
+  }
   </script>
 </body>
 
