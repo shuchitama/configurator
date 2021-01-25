@@ -121,7 +121,27 @@
 
     </model-viewer>
 
-    <script>
+    <script type="module">
+    import * as THREE from "https://unpkg.com/three@0.123.0/build/three.module.js"
+    let mixer;
+    let scene, model;
+
+    const mv = document.querySelector("model-viewer");
+    const clock = new THREE.Clock();
+
+    mv.addEventListener('load', () => {
+
+      let sceneObj = Object.getOwnPropertySymbols(mv).find(
+        x => x.description === "scene"
+      );
+      scene = mv[sceneObj];
+      console.log("scene", scene)
+
+      console.log(scene.animations[1].duration);
+
+    }, true);
+
+
     function HideShowDiv(id) {
       if (id == 1) {
         $("#cross-section").show();
