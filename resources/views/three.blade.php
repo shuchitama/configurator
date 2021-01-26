@@ -121,27 +121,19 @@
     planeHelpers = planes.map(p => new THREE.PlaneHelper(p, 50, 0xffffff));
     planeHelpers.forEach(ph => {
 
-      ph.visible = false;
+      ph.visible = true;
       scene.add(ph);
 
     });
 
 
     object = new THREE.Group();
-    object.scale.set(20, 20, 20);
+    object.scale.set(0.5, 0.5, 0.5);
     scene.add(object);
 
     loadLeePerrySmith();
 
     window.addEventListener('resize', onWindowResize, false);
-
-    var moved = false;
-
-    controls.addEventListener('change', function() {
-
-      moved = true;
-
-    });
 
     var gui = new GUI();
     var planeX = gui.addFolder('planeX');
@@ -153,7 +145,7 @@
       params.planeX.constant = planes[0].constant;
 
     });
-    planeX.open();
+    planeX.open(); // GUI folder default state is open
 
     var planeY = gui.addFolder('planeY');
     planeY.add(params.planeY, 'displayHelper').onChange(v => planeHelpers[1].visible = v);
@@ -182,17 +174,17 @@
     onWindowResize();
     animate();
 
-  }
+  } // end init fn
 
   function createPlaneStencilGroup(geometry, plane, renderOrder) {
 
     var group = new THREE.Group();
     var baseMat = new THREE.MeshBasicMaterial();
     baseMat.depthWrite = false;
-    // baseMat.depthTest = false;
+    baseMat.depthTest = false;
     baseMat.colorWrite = false;
-    // baseMat.stencilWrite = true;
-    // baseMat.stencilFunc = THREE.AlwaysStencilFunc;
+    baseMat.stencilWrite = true;
+    baseMat.stencilFunc = THREE.AlwaysStencilFunc;
 
     // back faces
     var mat0 = baseMat.clone();
@@ -221,7 +213,7 @@
 
     return group;
 
-  }
+  } // end createPlaneStencilGroup
 
   function loadLeePerrySmith() {
 
@@ -231,15 +223,17 @@
 
       mesh = gltf.scene.children[0];
       console.log("mesh", mesh);
+      console.log("scene", gltf.scene);
 
-      mesh.material = new THREE.MeshPhongMaterial({
-        // specular: 0x111111,
-        map: textureLoader.load('https://threejs.org/examples/models/gltf/LeePerrySmith/Map-COL.jpg'),
-        // specularMap: textureLoader.load('https://threejs.org/examples/models/gltf/LeePerrySmith/Map-SPEC.jpg'),
-        // normalMap: textureLoader.load(
-        //   'https://threejs.org/examples/models/gltf/LeePerrySmith/Infinite-Level_02_Tangent_SmoothUV.jpg'),
-        // shininess: 25,
-      });
+      // // load LeePerrySmith
+      // mesh.material = new THREE.MeshPhongMaterial({
+      // specular: 0x111111, //black
+      // map: textureLoader.load('https://threejs.org/examples/models/gltf/LeePerrySmith/Map-COL.jpg'),
+      // specularMap: textureLoader.load('https://threejs.org/examples/models/gltf/LeePerrySmith/Map-SPEC.jpg'),
+      // normalMap: textureLoader.load(
+      //   'https://threejs.org/examples/models/gltf/LeePerrySmith/Infinite-Level_02_Tangent_SmoothUV.jpg'),
+      // shininess: 25,
+      // });
 
       // Set up clip plane rendering
       planeObjects = [];
@@ -254,7 +248,7 @@
         var planeMat =
           new THREE.MeshStandardMaterial({
 
-            color: 0xE91E63,
+            color: 0xE91E63, //magenta
             metalness: 0.1,
             roughness: 0.75,
             clippingPlanes: planes.filter(p => p !== plane),
@@ -283,9 +277,9 @@
 
       var material = new THREE.MeshStandardMaterial({
 
-        color: 0xFFC107,
+        color: 0xFFC107, //yellow
         // specular: 0x111111,
-        map: textureLoader.load('https://threejs.org/examples/models/gltf/LeePerrySmith/Map-COL.jpg'),
+        // map: textureLoader.load('https://threejs.org/examples/models/gltf/LeePerrySmith/Map-COL.jpg'),
         // specularMap: textureLoader.load('https://threejs.org/examples/models/gltf/LeePerrySmith/Map-SPEC.jpg'),
         // normalMap: textureLoader.load(
         //   'https://threejs.org/examples/models/gltf/LeePerrySmith/Infinite-Level_02_Tangent_SmoothUV.jpg'),

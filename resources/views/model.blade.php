@@ -93,8 +93,8 @@
 <body>
   <div class="imgbox">
     <a href="/" class="m-3 py-1 px-1 text-center bg-blue-400 border cursor-pointer rounded text-white">Back</a>
-    <model-viewer id="model-viewer" class="center-fit" autoplay src="storage/models/<?= $model ?>" auto-rotate
-      camera-controls @if ($bg !=='none' ) skybox-image="storage/backgrounds/<?= $bg ?>" @endif>
+    <model-viewer id="model-viewer" class="center-fit" src="storage/models/<?= $model ?>" camera-controls @if ($bg
+      !=='none' ) skybox-image="storage/backgrounds/<?= $bg ?>" @endif>
 
       <div class="infoBoxMain">
         <div class="iconsBox">
@@ -123,11 +123,13 @@
 
     <script type="module">
     import * as THREE from "https://unpkg.com/three@0.123.0/build/three.module.js"
+    import {
+      GUI
+    } from 'https://threejs.org/examples/jsm/libs/dat.gui.module.js';
     let mixer;
     let scene, model;
 
     const mv = document.querySelector("model-viewer");
-    const clock = new THREE.Clock();
 
     mv.addEventListener('load', () => {
 
@@ -135,9 +137,195 @@
         x => x.description === "scene"
       );
       scene = mv[sceneObj];
-      console.log("scene", scene)
+      console.log("scene", scene);
+      // console.log("mesh?", Object.keys(scene.children));
+      console.log("mesh?", scene.children[4]);
+      // let mesh = scene.children[4].children
 
-      console.log(scene.animations[1].duration);
+      var params = {
+        planeX: {
+          constant: 0,
+          negated: false,
+          displayHelper: false
+        },
+        planeY: {
+          constant: 0,
+          negated: false,
+          displayHelper: false
+        },
+        planeZ: {
+          constant: 0,
+          negated: false,
+          displayHelper: false
+        }
+      };
+
+      let planes = [
+        new THREE.Plane(new THREE.Vector3(-1, 0, 0), 50),
+        new THREE.Plane(new THREE.Vector3(0, -1, 0), 12),
+        new THREE.Plane(new THREE.Vector3(0, 0, -1), 50)
+      ];
+
+      let planeHelpers = planes.map(p => new THREE.PlaneHelper(p, 50, 0xffffff));
+      planeHelpers.forEach(ph => {
+        ph.visible = false;
+        scene.add(ph);
+      });
+
+
+      let object = new THREE.Group();
+      object.scale.set(20, 20, 20);
+      scene.add(object);
+
+      var gui = new GUI();
+      var planeX = gui.addFolder('planeX');
+      planeX.add(params.planeX, 'displayHelper').onChange(v => planeHelpers[0]
+        .visible = v);
+      planeX.add(params.planeX, 'constant').min(-50).max(50).onChange(d => planes[0].constant =
+        d);
+      planeX.add(params.planeX, 'negated').onChange(() => {
+
+        planes[0].negate();
+        params.planeX.constant = planes[0].constant;
+
+      });
+      planeX.open();
+
+      var planeY = gui.addFolder('planeY');
+      planeY.add(params.planeY, 'displayHelper').onChange(v => planeHelpers[1]
+        .visible = v);
+      planeY.add(params.planeY, 'constant').min(-50).max(50).onChange(d => planes[1].constant =
+        d);
+      planeY.add(params.planeY, 'negated').onChange(() => {
+
+        planes[1].negate();
+        params.planeY.constant = planes[1].constant;
+
+      });
+      planeY.open();
+
+      var planeZ = gui.addFolder('planeZ');
+      planeZ.add(params.planeZ, 'displayHelper').onChange(v => planeHelpers[2]
+        .visible = v);
+      planeZ.add(params.planeZ, 'constant').min(-50).max(50).onChange(d => planes[2].constant =
+        d);
+      planeZ.add(params.planeZ, 'negated').onChange(() => {
+
+        planes[2].negate();
+        params.planeZ.constant = planes[2].constant;
+
+      });
+      planeZ.open();
+
+      gui.open();
+
+      function createPlaneStencilGroup(geometry, plane, renderOrder) {
+
+        var group = new THREE.Group();
+        var baseMat = new THREE.MeshBasicMaterial();
+        baseMat.depthWrite = false;
+        baseMat.depthTest = false;
+        baseMat.colorWrite = false;
+        baseMat.stencilWrite = true;
+        baseMat.stencilFunc = THREE.AlwaysStencilFunc;
+
+        // back faces
+        var mat0 = baseMat.clone();
+        mat0.side = THREE.BackSide;
+        mat0.clippingPlanes = [plane];
+        mat0.stencilFail = THREE.IncrementWrapStencilOp;
+        mat0.stencilZFail = THREE.IncrementWrapStencilOp;
+        mat0.stencilZPass = THREE.IncrementWrapStencilOp;
+
+        var mesh0 = new THREE.Mesh(geometry, mat0);
+        mesh0.renderOrder = renderOrder;
+        group.add(mesh0);
+
+        // front faces
+        var mat1 = baseMat.clone();
+        mat1.side = THREE.FrontSide;
+        mat1.clippingPlanes = [plane];
+        mat1.stencilFail = THREE.DecrementWrapStencilOp;
+        mat1.stencilZFail = THREE.DecrementWrapStencilOp;
+        mat1.stencilZPass = THREE.DecrementWrapStencilOp;
+
+        var mesh1 = new THREE.Mesh(geometry, mat1);
+        mesh1.renderOrder = renderOrder;
+
+        group.add(mesh1);
+
+        return group;
+
+      } // end createPlaneStencilGroup
+
+      mesh = scene.children[0];
+
+      planeObjects = [];
+      var planeGeom = new THREE.PlaneBufferGeometry(100, 100);
+      for (var i = 0; i < 3; i++) {
+
+        var poGroup = new THREE.Group();
+        var plane = planes[i];
+        var stencilGroup = createPlaneStencilGroup(mesh.geometry, plane, i + 1);
+
+        // plane is clipped by the other clipping planes
+        var planeMat =
+          new THREE.MeshStandardMaterial({
+
+            color: 0xE91E63,
+            metalness: 0.1,
+            roughness: 0.75,
+            clippingPlanes: planes.filter(p => p !== plane),
+
+            stencilWrite: true,
+            stencilRef: 0,
+            stencilFunc: THREE.NotEqualStencilFunc,
+            stencilFail: THREE.ReplaceStencilOp,
+            stencilZFail: THREE.ReplaceStencilOp,
+            stencilZPass: THREE.ReplaceStencilOp,
+
+          });
+        var po = new THREE.Mesh(planeGeom, planeMat);
+        po.onAfterRender = function(renderer) {
+
+          renderer.clearStencil();
+
+        };
+
+        po.renderOrder = i + 1.1;
+        object.add(stencilGroup);
+        poGroup.add(po);
+        planeObjects.push(po);
+        scene.add(poGroup);
+      }
+
+      // add the color
+      var clippedColorFront = new THREE.Mesh(mesh.geometry, material);
+      clippedColorFront.castShadow =
+        true;
+      clippedColorFront.renderOrder = 6;
+      object.add(clippedColorFront);
+
+      // scene.add(mesh);
+      mesh.scale.set(10, 10, 10);
+
+      function animate() {
+        if (planeObjects && planeObjects.length > 0) {
+          for (var i = 0; i < planeObjects.length; i++) {
+
+            var plane = planes[i];
+            var po = planeObjects[i];
+            plane.coplanarPoint(po.position);
+            po.lookAt(
+              po.position.x - plane.normal.x,
+              po.position.y - plane.normal.y,
+              po.position.z - plane.normal.z,
+            );
+
+          }
+        }
+
+      }
 
     }, true);
 
