@@ -35,4 +35,9 @@ class ModelController extends Controller
             return view('three', ['model' => $modelFilename, 'bg' => 'none']);
         } return "not uploaded :(";
     }
+
+    public function uploadLeePerrySmith()
+    {
+        return view('leePerrySmith');
+    }
 }
