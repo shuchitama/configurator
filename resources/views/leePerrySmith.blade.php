@@ -14,31 +14,24 @@
   </div>
   <script type="module">
   import * as THREE from "https://threejs.org/build/three.module.js";
-
-  import Stats from "https://threejs.org/examples/jsm/libs/stats.module.js";
   import {
     GUI
   } from "https://threejs.org/examples/jsm/libs/dat.gui.module.js";
-
   import {
     OrbitControls
   } from "https://threejs.org/examples/jsm/controls/OrbitControls.js";
   import {
     GLTFLoader
   } from "https://threejs.org/examples/jsm/loaders/GLTFLoader.js";
-  import {
-    DecalGeometry
-  } from "https://threejs.org/examples/jsm/geometries/DecalGeometry.js";
 
   let container = document.createElement('div');
   document.body.appendChild(container);
 
-  var renderer, scene, camera, stats;
+  var renderer, scene, camera;
   var mesh;
   var planes, planeObjects, planeHelpers, object;
 
   var textureLoader = new THREE.TextureLoader();
-  var size = new THREE.Vector3(10, 10, 10);
 
   var params = {
     planeX: {
@@ -68,9 +61,6 @@
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.localClippingEnabled = true;
     container.appendChild(renderer.domElement);
-
-    stats = new Stats();
-    container.appendChild(stats.dom);
 
     scene = new THREE.Scene();
 
@@ -331,8 +321,6 @@
     requestAnimationFrame(animate);
 
     renderer.render(scene, camera);
-
-    stats.update();
   }
   </script>
 </body>
