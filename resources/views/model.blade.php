@@ -127,7 +127,7 @@
       GUI
     } from 'https://threejs.org/examples/jsm/libs/dat.gui.module.js';
     let mixer;
-    let scene, model;
+    let scene, model, mesh;
 
     const mv = document.querySelector("model-viewer");
 
@@ -137,12 +137,19 @@
         x => x.description === "scene"
       );
       scene = mv[sceneObj];
+      model = scene.modelContainer;
       console.log("scene", scene);
-      // console.log("mesh?", Object.keys(scene.children));
-      console.log("mesh?", scene.children[4]);
-      // let mesh = scene.children[4].children
 
-      var params = {
+
+      model.traverse(function(node) {
+        if (node.isMesh) {
+          mesh = node;
+        }
+      });
+
+      console.log("mesh", mesh);
+
+      let params = {
         planeX: {
           constant: 0,
           negated: false,
@@ -174,11 +181,11 @@
 
 
       let object = new THREE.Group();
-      object.scale.set(20, 20, 20);
+      // object.scale.set(1, 1, 1);
       scene.add(object);
 
-      var gui = new GUI();
-      var planeX = gui.addFolder('planeX');
+      let gui = new GUI();
+      let planeX = gui.addFolder('planeX');
       planeX.add(params.planeX, 'displayHelper').onChange(v => planeHelpers[0]
         .visible = v);
       planeX.add(params.planeX, 'constant').min(-50).max(50).onChange(d => planes[0].constant =
@@ -191,7 +198,7 @@
       });
       planeX.open();
 
-      var planeY = gui.addFolder('planeY');
+      let planeY = gui.addFolder('planeY');
       planeY.add(params.planeY, 'displayHelper').onChange(v => planeHelpers[1]
         .visible = v);
       planeY.add(params.planeY, 'constant').min(-50).max(50).onChange(d => planes[1].constant =
@@ -204,7 +211,7 @@
       });
       planeY.open();
 
-      var planeZ = gui.addFolder('planeZ');
+      let planeZ = gui.addFolder('planeZ');
       planeZ.add(params.planeZ, 'displayHelper').onChange(v => planeHelpers[2]
         .visible = v);
       planeZ.add(params.planeZ, 'constant').min(-50).max(50).onChange(d => planes[2].constant =
@@ -221,8 +228,8 @@
 
       function createPlaneStencilGroup(geometry, plane, renderOrder) {
 
-        var group = new THREE.Group();
-        var baseMat = new THREE.MeshBasicMaterial();
+        let group = new THREE.Group();
+        let baseMat = new THREE.MeshBasicMaterial();
         baseMat.depthWrite = false;
         baseMat.depthTest = false;
         baseMat.colorWrite = false;
@@ -230,26 +237,26 @@
         baseMat.stencilFunc = THREE.AlwaysStencilFunc;
 
         // back faces
-        var mat0 = baseMat.clone();
+        let mat0 = baseMat.clone();
         mat0.side = THREE.BackSide;
         mat0.clippingPlanes = [plane];
         mat0.stencilFail = THREE.IncrementWrapStencilOp;
         mat0.stencilZFail = THREE.IncrementWrapStencilOp;
         mat0.stencilZPass = THREE.IncrementWrapStencilOp;
 
-        var mesh0 = new THREE.Mesh(geometry, mat0);
+        let mesh0 = new THREE.Mesh(geometry, mat0);
         mesh0.renderOrder = renderOrder;
         group.add(mesh0);
 
         // front faces
-        var mat1 = baseMat.clone();
+        let mat1 = baseMat.clone();
         mat1.side = THREE.FrontSide;
         mat1.clippingPlanes = [plane];
         mat1.stencilFail = THREE.DecrementWrapStencilOp;
         mat1.stencilZFail = THREE.DecrementWrapStencilOp;
         mat1.stencilZPass = THREE.DecrementWrapStencilOp;
 
-        var mesh1 = new THREE.Mesh(geometry, mat1);
+        let mesh1 = new THREE.Mesh(geometry, mat1);
         mesh1.renderOrder = renderOrder;
 
         group.add(mesh1);
@@ -258,25 +265,23 @@
 
       } // end createPlaneStencilGroup
 
-      mesh = scene.children[0];
 
-      planeObjects = [];
-      var planeGeom = new THREE.PlaneBufferGeometry(100, 100);
-      for (var i = 0; i < 3; i++) {
+      let planeObjects = [];
+      let planeGeom = new THREE.PlaneBufferGeometry(100, 100);
+      for (let i = 0; i < 3; i++) {
 
-        var poGroup = new THREE.Group();
-        var plane = planes[i];
-        var stencilGroup = createPlaneStencilGroup(mesh.geometry, plane, i + 1);
+        let poGroup = new THREE.Group();
+        let plane = planes[i];
+        let stencilGroup = createPlaneStencilGroup(mesh.geometry, plane, i + 1);
 
         // plane is clipped by the other clipping planes
-        var planeMat =
+        let planeMat =
           new THREE.MeshStandardMaterial({
 
             color: 0xE91E63,
             metalness: 0.1,
             roughness: 0.75,
             clippingPlanes: planes.filter(p => p !== plane),
-
             stencilWrite: true,
             stencilRef: 0,
             stencilFunc: THREE.NotEqualStencilFunc,
@@ -285,7 +290,7 @@
             stencilZPass: THREE.ReplaceStencilOp,
 
           });
-        var po = new THREE.Mesh(planeGeom, planeMat);
+        let po = new THREE.Mesh(planeGeom, planeMat);
         po.onAfterRender = function(renderer) {
 
           renderer.clearStencil();
@@ -299,22 +304,31 @@
         scene.add(poGroup);
       }
 
+      let material = new THREE.MeshStandardMaterial({
+
+        color: 0xFFC107, //yellow
+        metalness: 0.1,
+        roughness: 0.75,
+        clippingPlanes: planes,
+        clipShadows: true,
+        shadowSide: THREE.DoubleSide,
+      });
+
       // add the color
-      var clippedColorFront = new THREE.Mesh(mesh.geometry, material);
+      let clippedColorFront = new THREE.Mesh(mesh.geometry, material);
       clippedColorFront.castShadow =
         true;
       clippedColorFront.renderOrder = 6;
       object.add(clippedColorFront);
 
-      // scene.add(mesh);
-      mesh.scale.set(10, 10, 10);
+      // mesh.scale.set(10, 10, 10);
 
       function animate() {
         if (planeObjects && planeObjects.length > 0) {
-          for (var i = 0; i < planeObjects.length; i++) {
+          for (let i = 0; i < planeObjects.length; i++) {
 
-            var plane = planes[i];
-            var po = planeObjects[i];
+            let plane = planes[i];
+            let po = planeObjects[i];
             plane.coplanarPoint(po.position);
             po.lookAt(
               po.position.x - plane.normal.x,
