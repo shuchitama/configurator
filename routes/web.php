@@ -21,4 +21,6 @@ Route::post('/model', 'ModelController@uploadModel');
 
 Route::post('/threejs', 'ModelController@uploadThree');
 
+Route::post('/babylon', 'ModelController@uploadBabylon');
+
 Route::get('/leePerrySmith', 'ModelController@uploadLeePerrySmith');

@@ -67,6 +67,7 @@
             <div class="flex flex-column">
               <input class="btn btn-primary my-4" type="submit" value="Upload with Model Viewer" />
               <input class="btn btn-primary my-2" type="submit" value="Upload with threejs" formaction="/threejs" />
+              <input class="btn btn-primary my-2" type="submit" value="Upload with Babylonjs" formaction="/babylon" />
             </div>
           </form>
         </div>
