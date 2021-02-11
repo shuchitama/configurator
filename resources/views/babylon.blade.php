@@ -36,7 +36,6 @@
             );
 
             camera.attachControl(canvas, true); //mouse control
-            camera.lowerRadiusLimit = 0.01;
             camera.useFramingBehavior = true;
 
             const light = new BABYLON.HemisphericLight("HemiLight", new BABYLON.Vector3(0, 1, 0), scene);
@@ -81,6 +80,8 @@
 
                 // set camera radius to largest dimension times 3
                 camera.radius = maxDim*3;
+                camera.lowerRadiusLimit = maxDim*2;
+                camera.upperRadiusLimit = maxDim * 5;
               })
             });
 
