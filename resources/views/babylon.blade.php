@@ -30,28 +30,57 @@
             const camera = new BABYLON.ArcRotateCamera("arcCam", //name
             BABYLON.Tools.ToRadians(90), // alpha - the longitudinal rotation, in radians
             BABYLON.Tools.ToRadians(90), // beta - latitudinal rotation, in radians
-            290.0, // radius
+            20.0, // radius
             BABYLON.Vector3.Zero(), // target position
             scene // scene
             );
+
             // camera.setTarget(BABYLON.Vector3.Zero());
             camera.attachControl(canvas, true); //mouse control
+            camera.lowerRadiusLimit = 1;
 
             // scene.createDefaultCamera(true, true, true);
             // scene.createDefaultEnvironment();
 
             const light = new BABYLON.HemisphericLight("HemiLight", new BABYLON.Vector3(0, 1, 0), scene);
 
-            BABYLON.SceneLoader.ImportMesh("", "storage/models/", "<?=$model?>", scene, function(newMeshes) {
+            BABYLON.SceneLoader.ImportMesh("", "storage/models/", "<?=$model?>", scene, function(meshes) {
               scene.executeWhenReady(function () {
-                console.log("newMeshes", newMeshes)
-                // camera.setTarget(newMeshes[0].position);
-                newMeshes[0].showBoundingBox = true;
-                newMeshes[1].showBoundingBox = true;
-                console.log("newMeshes[1]", newMeshes[1])
-                let boundingInfo = newMeshes[1].getBoundingInfo()
-                console.log("boundinginfo: ", boundingInfo);
-                camera.setTarget(boundingInfo.boundingBox.center);
+                console.log("meshes", meshes)
+
+                // create a parent mesh
+                let parent = new BABYLON.Mesh("parent", scene);
+
+                // set as parent of all meshes
+                for(let i=0; i<meshes.length; i++) {
+                  meshes[i].setParent(parent);
+                }
+
+                let childMeshes = parent.getChildMeshes();
+                console.log("childMeshes :", childMeshes)
+
+                // calculate bounding box based on all meshes
+                let min = childMeshes[0].getBoundingInfo().boundingBox.minimumWorld;
+                let max = childMeshes[0].getBoundingInfo().boundingBox.maximumWorld;
+
+                for(let i=0; i<childMeshes.length; i++){
+                  let meshMin = childMeshes[i].getBoundingInfo().boundingBox.minimumWorld;
+                  let meshMax = childMeshes[i].getBoundingInfo().boundingBox.maximumWorld;
+
+                  min = BABYLON.Vector3.Minimize(min, meshMin);
+                  max = BABYLON.Vector3.Maximize(max, meshMax);
+                }
+
+                parent.setBoundingInfo(new BABYLON.BoundingInfo(min, max));
+
+                parent.showBoundingBox = true;
+
+                // meshes[0].showBoundingBox = true;
+                // meshes[1].showBoundingBox = true;
+                // console.log("meshes[1]", meshes[1])
+                // let boundingInfo = meshes[1].getBoundingInfo()
+                // console.log("boundinginfo: ", parent._boundingInfo.boundingBox);
+                camera.setTarget(parent._boundingInfo.boundingBox.center);
               })
             });
 
