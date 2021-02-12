@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
-    <title>BabylonJs Demo</title>
+    <title>BabylonJs</title>
     <script src="https://cdn.babylonjs.com/babylon.js"></script>
     <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
     <style>
@@ -30,7 +30,7 @@
             const camera = new BABYLON.ArcRotateCamera("arcCam", //name
             BABYLON.Tools.ToRadians(90), // alpha - the longitudinal rotation, in radians
             BABYLON.Tools.ToRadians(90), // beta - latitudinal rotation, in radians
-            900.0, // radius
+            100.0, // initial radius, will be overwritten
             BABYLON.Vector3.Zero(), // target position
             scene // scene
             );
@@ -66,19 +66,15 @@
                 }
 
                 parent.setBoundingInfo(new BABYLON.BoundingInfo(min, max));
-                // parent.showBoundingBox = true;
 
                 // center camera on model
                 camera.setTarget(parent._boundingInfo.boundingBox.center);
-                console.log("boundingbox", parent._boundingInfo.boundingBox)
 
                 // find the largest dimension of model
-                console.log("extendSize", parent._boundingInfo.boundingBox.extendSize)
                 const {_x, _y, _z} = parent._boundingInfo.boundingBox.extendSize
                 const maxDim = Math.max(_x, _y, _z);
-                console.log("maxDim:", maxDim)
 
-                // set camera radius to largest dimension times 3
+                // camera radius settings
                 camera.radius = maxDim*3;
                 camera.lowerRadiusLimit = maxDim*2;
                 camera.upperRadiusLimit = maxDim * 5;
