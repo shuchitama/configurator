@@ -27,15 +27,9 @@
             const scene = new BABYLON.Scene(engine);
             scene.clearColor = new BABYLON.Color3.FromHexString("#e5e5e5");
 
-            const camera = new BABYLON.ArcRotateCamera("arcCam", //name
-            BABYLON.Tools.ToRadians(90), // alpha - the longitudinal rotation, in radians
-            BABYLON.Tools.ToRadians(90), // beta - latitudinal rotation, in radians
-            100.0, // initial radius, will be overwritten
-            BABYLON.Vector3.Zero(), // target position
-            scene // scene
-            );
+            const camera = new BABYLON.ArcRotateCamera("arcCam", BABYLON.Tools.ToRadians(90), BABYLON.Tools.ToRadians(90), 100.0, BABYLON.Vector3.Zero(), scene);
 
-            camera.attachControl(canvas, true); //mouse control
+            camera.attachControl(canvas, true);
             camera.useFramingBehavior = true;
 
             const light = new BABYLON.HemisphericLight("HemiLight", new BABYLON.Vector3(0, 1, 0), scene);
